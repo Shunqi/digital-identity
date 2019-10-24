@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:id="@+id/permission_title"
+        android:layout_width="307dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="10dp"
+        android:text="Item"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#270B61"
+        android:textSize="23dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+        app:layout_constraintEnd_toStartOf="@+id/permission_checkbox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+     <CheckBox
+        android:id="@+id/permission_checkbox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignBaseline="@+id/permission_title"
+        android:layout_alignBottom="@+id/permission_title"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="right"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/permission_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/permission_title"
+        app:layout_constraintTop_toTopOf="@+id/permission_title" />
+
+</android.support.constraint.ConstraintLayout>
