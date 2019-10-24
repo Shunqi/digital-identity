@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, ApprovePermissions.class);
+                //PutExtra producer and consumer DIDs and access_control
                 startActivity(i);
             }
         });

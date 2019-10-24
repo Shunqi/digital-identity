@@ -5,15 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <!-- <ListView
+    <ListView
         android:id="@+id/permissions_listView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/approve_button" /> -->
+        app:layout_constraintTop_toBottomOf="@+id/approve_button" />
 
     <Button
         android:id="@+id/approve_button"
@@ -24,8 +23,8 @@
         android:text="Approve"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- app:layout_constraintBottom_toTopOf="@+id/permissions_listView" -->
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/permissions_listView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
