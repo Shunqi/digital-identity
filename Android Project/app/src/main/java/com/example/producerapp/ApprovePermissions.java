@@ -1,6 +1,7 @@
 package com.example.producerapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 
 public class ApprovePermissions extends Activity {
 
-    ArrayList<PermissionItem> items = new ArrayList<PermissionItem>();
+    ArrayList<PermissionItem> items;
     ListAdapter boxAdapter;
 
     @Override
@@ -20,10 +21,16 @@ public class ApprovePermissions extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.approve_permissions);
 
-        ArrayList<PermissionItem> items = new ArrayList();
-        items.add(new PermissionItem("Health Records", false));
-        items.add(new PermissionItem("Bank Details", false));
-        items.add(new PermissionItem("Shopping Transactions", false));
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+
+        System.out.println("Extras in Approve permissions: "+extras.getString("permissions"));
+        String[] permissionsArray = extras.getString("permissions").split(",");
+
+        items = new ArrayList<PermissionItem>();
+        for(int i=0; i<permissionsArray.length; i++) {
+            items.add(new PermissionItem(permissionsArray[i], false));
+        }
 
         boxAdapter = new ListAdapter(this, items);
 
@@ -43,6 +50,11 @@ public class ApprovePermissions extends Activity {
                     }
                 }
                 System.out.println(result);
+
+                Intent i = new Intent(ApprovePermissions.this, MainActivity.class);
+                startActivity(i);
+
+
                 //createJSON();
             }
         });
