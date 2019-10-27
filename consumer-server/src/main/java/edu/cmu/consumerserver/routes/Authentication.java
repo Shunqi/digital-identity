@@ -23,7 +23,7 @@ import java.util.Random;
 @RestController
 public class Authentication {
     private Security security = new Security();
-    private String myDid = "2YGJ67123";
+    private String myDid = "2YGJ67123ABC987H";
 
     @RequestMapping(
             value = "/authentication/{did}",
@@ -71,7 +71,7 @@ public class Authentication {
                 return null;
             }
 
-
+            conn.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
