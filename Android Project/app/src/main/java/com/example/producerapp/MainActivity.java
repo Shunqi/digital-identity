@@ -11,11 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import com.google.firebase.FirebaseApp;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -24,12 +27,15 @@ public class MainActivity extends AppCompatActivity {
         reviewPermissions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, ApprovePermissions.class);
-                //PutExtra producer and consumer DIDs and access_control
-                startActivity(i);
+
+                /*Intent intent = getIntent();
+                if(intent.getExtras() != null) {
+                    Intent i = new Intent(MainActivity.this, ApprovePermissions.class);
+                    i.putExtras(intent.getExtras());
+                    startActivity(i);
+                }*/
             }
         });
-
 
     }
 
