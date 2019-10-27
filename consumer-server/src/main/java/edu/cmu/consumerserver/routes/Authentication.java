@@ -12,7 +12,10 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -23,7 +26,7 @@ import java.util.Random;
 @RestController
 public class Authentication {
     private Security security = new Security();
-    private String myDid = "2YGJ67123ABC987H";
+    private String consumerDid = "2YGJ67123ABC987H";
 
     @RequestMapping(
             value = "/authentication/{did}",
@@ -38,14 +41,13 @@ public class Authentication {
 
             JSONObject challengeMessage = new JSONObject();
 
-
             Random random = new Random();
             long challenge = random.nextLong();
 
             challengeMessage.put("challenge", challenge);
-            challengeMessage.put("DID", myDid);
+            challengeMessage.put("DID", consumerDid);
 
-            byte[] message = challengeMessage.toJSONString().getBytes("UTF8");
+            byte[] message = challengeMessage.toJSONString().getBytes(StandardCharsets.UTF_8);
             byte[] secret = security.encrypt(producerPublicKey, message);
 
             URL url = new URL("http://localhost:8082");
@@ -54,41 +56,48 @@ public class Authentication {
             conn.setDoOutput(true);
             // write to POST data area
             OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
-            out.write(new String(secret, "UTF8"));
+            out.write(new String(secret, StandardCharsets.UTF_8));
             out.close();
 
             // get HTTP response code sent by server
             status = conn.getResponseCode();
-            String response = conn.getResponseMessage();
-            byte[] recovered_message = security.decrypt(consumerPrivateKey, response.getBytes());
-            JSONParser parser = new JSONParser();
-            JSONObject json = (JSONObject) parser.parse(new String(recovered_message, "UTF8"));
+            if (status == 200) {
+                String response = conn.getResponseMessage();
+                byte[] recovered_message = security.decrypt(consumerPrivateKey, response.getBytes());
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(new String(recovered_message, StandardCharsets.UTF_8));
 
-            if ((long) json.get("challenge") == challenge) {
-                String authtoken = json.get("authtoken").toString();
-                //TO-DO save this to redis
+                if ((long) json.get("challenge") == challenge) {
+                    String authtoken = json.get("authtoken").toString();
+                    //TO-DO save this to redis
+                } else {
+                    return null;
+                }
             } else {
-                return null;
+                return "DID could not be authenticated.";
             }
-
             conn.disconnect();
-        } catch (IOException e) {
+        } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
         } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {
             e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return "DID is authenticated!";
+        return "DID is authenticated.";
     }
 }
