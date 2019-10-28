@@ -27,30 +27,17 @@ public class MyService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-
-        // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
-            if (/* Check if data needs to be processed by long running job */ true) {
-                // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
-                scheduleJob();
-            } else {
-                // Handle message within 10 seconds
-                handleNow();
-            }
-
-        }
-        else{
-            System.out.println("Authenticate Consumer");
-        }
-
-        // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
 
-        sendNotification(remoteMessage.getData());
+        if (remoteMessage.getData().size() > 0) {
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            sendPermitNotification(remoteMessage.getData());
+        }
+        else{
+            sendAuthNotification();
+        }
     }
 
     /**
@@ -72,18 +59,50 @@ public class MyService extends FirebaseMessagingService {
         System.out.println("scheduling");
     }
 
-    private void handleNow() {
-        System.out.println("handling");
+    private void sendAuthNotification(){
+
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        Intent intent = new Intent(getApplicationContext(), AuthenticateConsumer.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        String NOTIFICATION_CHANNEL_ID = "101";
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            @SuppressLint("WrongConstant") NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_MAX);
+
+            //Configure Notification Channel
+            notificationChannel.setDescription("Firebase Notifications");
+            notificationChannel.enableLights(true);
+            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+            notificationChannel.enableVibration(true);
+
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setContentTitle("Consumer Authentication")
+                .setAutoCancel(true)
+                .setSound(defaultSound)
+                .setContentText("Content here hi nandini")
+                .setContentIntent(pendingIntent)
+                .setWhen(System.currentTimeMillis())
+                .setPriority(Notification.PRIORITY_MAX);
+
+        notificationManager.notify(1, notificationBuilder.build());
+
     }
 
-    private void sendNotification(Map<String, String> data){
+    private void sendPermitNotification(Map<String, String> data){
             if(data != null)
                 System.out.println("sendNotification data: "+data.get("permissions"));
 
             Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             Intent intent = new Intent(getApplicationContext(), ApprovePermissions.class);
-
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 
@@ -108,7 +127,7 @@ public class MyService extends FirebaseMessagingService {
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setContentTitle("Title here whats up nano")
+                    .setContentTitle("Consumer Permissions Approval")
                     .setAutoCancel(true)
                     .setSound(defaultSound)
                     .setContentText("Content here hi nandini")

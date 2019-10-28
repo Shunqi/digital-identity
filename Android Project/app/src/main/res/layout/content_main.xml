@@ -8,23 +8,16 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
-
-    <Button
-        android:id="@+id/review_permission_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Review Permissions"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="239dp"
-        android:layout_height="137dp"
+        android:layout_width="320dp"
+        android:layout_height="194dp"
+        android:layout_marginStart="69dp"
+        android:layout_marginEnd="69dp"
+        android:layout_marginBottom="288dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/barcode" />
 
 </android.support.constraint.ConstraintLayout>
