@@ -29,11 +29,11 @@ public class Authentication {
     private String consumerDid = "2YGJ67123ABC987H";
 
     @RequestMapping(
-            value = "/authentication/{did}",
+            value = "/authentication/did",
             method = RequestMethod.POST,
             consumes = "text/plain"
     )
-    public String challenge(@PathVariable String did) {
+    public String challenge(@RequestBody String did) {
         int status;
         try {
             PrivateKey consumerPrivateKey = security.readPrivateKey("src/main/keys/consumer/private.der");
@@ -71,7 +71,7 @@ public class Authentication {
                     String authtoken = json.get("authtoken").toString();
                     //TO-DO save this to redis
                 } else {
-                    return null;
+                    return "DID could not be authenticated.";
                 }
             } else {
                 return "DID could not be authenticated.";
@@ -98,6 +98,7 @@ public class Authentication {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "DID is authenticated.";
+//        return "DID is authenticated.";
+        return did;
     }
 }
