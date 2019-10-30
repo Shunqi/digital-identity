@@ -31,6 +31,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation "com.google.android.gms:play-services-base:16.1.0"
-
+    //implementation files('libs/bson-3.4.3.jar')
+    //compile files('libs/mongodb-driver-core-3.4.3.jar')
+    //compile files('libs/mongodb-driver-3.4.3.jar')
 }
 apply plugin: 'com.google.gms.google-services'

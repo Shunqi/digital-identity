@@ -1,6 +1,5 @@
 package com.example.producerapp;
 
-
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,8 +10,13 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
@@ -31,15 +35,36 @@ public class MyService extends FirebaseMessagingService {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
 
+        //Message with payload for Permissions Protocol
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-            sendPermitNotification(remoteMessage.getData());
+            Log.d(TAG, "Message data payload, value at permissions key: " + remoteMessage.getData().get("permissions"));
+            sendPermitNotification(remoteMessage.getData().get("permissions"));
         }
+        //Message without payload for Authentication Protocol
         else{
             sendAuthNotification();
         }
     }
+    /**
+     * Call if a new token is generated
+    */
+    public void getToken(){
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
 
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.d(TAG, "YOUR TOKEN IS : "+ token);
+
+                    }
+                });
+    }
     /**
      * Called if InstanceID token is updated. This may occur if the security of
      * the previous token had been compromised. Note that this is called when the InstanceID token
@@ -53,10 +78,6 @@ public class MyService extends FirebaseMessagingService {
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
         //sendRegistrationToServer(token);
-    }
-
-    private void scheduleJob() {
-        System.out.println("scheduling");
     }
 
     private void sendAuthNotification(){
@@ -96,9 +117,9 @@ public class MyService extends FirebaseMessagingService {
 
     }
 
-    private void sendPermitNotification(Map<String, String> data){
-            if(data != null)
-                System.out.println("sendNotification data: "+data.get("permissions"));
+    private void sendPermitNotification(String data){
+
+        Log.d(TAG, "In sendPermitNotification, data: "+data);
 
             Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -106,11 +127,11 @@ public class MyService extends FirebaseMessagingService {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 
-            if(data != null)
-                intent.putExtra("permissions", data.get("permissions"));
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
+            intent.putExtra("permissions", data);
 
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
             NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
             String NOTIFICATION_CHANNEL_ID = "101";
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -127,7 +148,7 @@ public class MyService extends FirebaseMessagingService {
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setContentTitle("Consumer Permissions Approval")
+                    .setContentTitle("Approve Consumer Permissions")
                     .setAutoCancel(true)
                     .setSound(defaultSound)
                     .setContentText("Content here hi nandini")

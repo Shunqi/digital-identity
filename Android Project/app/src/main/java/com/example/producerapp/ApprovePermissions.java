@@ -6,9 +6,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-import org.json.JSONException;
-import org.json.JSONObject;
 import java.util.ArrayList;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import java.util.logging.Level;
+import org.bson.Document;
 
 
 public class ApprovePermissions extends Activity {
@@ -23,6 +27,7 @@ public class ApprovePermissions extends Activity {
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
+        intent.removeExtra("permissions");
 
         System.out.println("Extras in Approve permissions: "+extras.getString("permissions"));
         String[] permissionsArray = extras.getString("permissions").split(",");
@@ -32,9 +37,8 @@ public class ApprovePermissions extends Activity {
             items.add(new PermissionItem(permissionsArray[i], false));
         }
 
-        boxAdapter = new ListAdapter(this, items);
-
         ListView lvMain = (ListView) findViewById(R.id.permissions_listView);
+        boxAdapter = new ListAdapter(this, items);
         lvMain.setAdapter(boxAdapter);
 
         Button approveButton = (Button) findViewById(R.id.approve_button);
@@ -45,36 +49,43 @@ public class ApprovePermissions extends Activity {
                 String result = "You selected: ";
                 for (PermissionItem p : boxAdapter.getBox()) {
                     if (p.box) {
-                        result += "\n" + p.title;
+                        result += " " + p.title;
 
                     }
                 }
-                System.out.println(result);
+                System.out.println(result +"\n");
+                //saveJSON(result);
 
                 Intent i = new Intent(ApprovePermissions.this, MainActivity.class);
                 startActivity(i);
-
-
-                //createJSON();
+                finish();
             }
         });
 
     }
 
-    public void createJSON(){
-
-        JSONObject jobj = new JSONObject();
-        try {
-            jobj.put("producer", "DID1");
-            jobj.put("consumer", "DID2");
-            jobj.put("attribute_block", "Health");
-            jobj.put("access_control", "RW");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        System.out.println();
-
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+        this.setIntent(intent);
     }
 
+    public void saveJSON(String permissions){
+        java.util.logging.Logger.getLogger("org.mongodb.driver").setLevel(Level.SEVERE);
+
+        MongoClientURI uri = new MongoClientURI("");
+
+        MongoClient mongoClient = new MongoClient(uri);
+        MongoDatabase database = mongoClient.getDatabase("");
+        MongoCollection<Document> collection = database.getCollection("");
+
+        Document doc = new Document("producer_DID", "")
+                .append("consumer_DID", "")
+                .append("permissions", permissions)
+                .append("access_control", "");
+                //.append("access_control", new Document("x", 203).append("y", 102));
+
+        collection.insertOne(doc);
+
+    }
 }
