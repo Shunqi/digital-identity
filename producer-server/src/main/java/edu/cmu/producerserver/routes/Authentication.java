@@ -1,6 +1,8 @@
 package edu.cmu.producerserver.routes;
 
-import edu.cmu.producerserver.security.Security;
+import edu.cmu.producerserver.security.AsymmetricKey;
+import edu.cmu.producerserver.security.SymmetricKey;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,65 +11,88 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.json.simple.JSONObject;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 
 @RestController
 public class Authentication {
 
     String appURL = "http://10.0.0.153:8081";
-    Security sec = new Security();
+    AsymmetricKey asymmetricKey = new AsymmetricKey();
+    SymmetricKey symmetricKey = new SymmetricKey();
+
+    @RequestMapping(
+            value = "/authentication/key",
+            method = RequestMethod.GET,
+            consumes = "text/plain"
+    )
+    public void establishKey(HttpServletResponse response) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException,
+            InvalidKeySpecException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+        String secretKey = RandomStringUtils.randomAlphabetic(5);
+        symmetricKey.setKey(secretKey, 15, "AES");
+        PublicKey publicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
+        byte[] secret = asymmetricKey.encrypt(publicKey, secretKey.getBytes("UTF8"));
+        response.setStatus(200);
+        response.setContentType("text/plain; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        OutputStream out = response.getOutputStream();
+        out.write(secret);
+        out.close();
+        out.flush();
+    }
 
     @RequestMapping(
             value = "/authentication/challenge",
             method = RequestMethod.POST,
             consumes = "text/plain"
     )
-    public String challenge(@RequestBody String payload, HttpServletResponse response) throws ParseException {
+    public void challenge(@RequestBody byte[] payload, HttpServletResponse response) throws ParseException, IOException,
+            NoSuchAlgorithmException, InvalidKeySpecException, IllegalBlockSizeException, InvalidKeyException,
+            BadPaddingException, NoSuchPaddingException {
         JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(payload);
+        PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/producer/private.der");
 
-        // Decrypt the string received and get the challenge value
+        byte[] secret = asymmetricKey.decrypt(privateKey, payload);
+        String data = new String(secret, "UTF8");
+
+        JSONObject dataJSON = (JSONObject) parser.parse(data);
+        long challenge = (long) dataJSON.get("challenge");
 
         // Make call to the app
         try {
-            URL url = new URL(appURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
+//            URL url = new URL(appURL);
+//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//            conn.setRequestMethod("GET");
+//            conn.setRequestProperty("Accept", "application/json");
+//
+//            if(conn.getResponseCode() == 200) {
+//                // Generate auth token and store in redis
+//                //cresponse.getWriter().write(json.toJSONString());
+//            } else if(conn.getResponseCode() == 401) {
+//                // Send back saying unauthorized
+//            }
 
-            if(conn.getResponseCode() == 200) {
-                // Generate auth token and store in redis
-                //cresponse.getWriter().write(json.toJSONString());
-            } else if(conn.getResponseCode() == 401) {
-                // Send back saying unauthorized
-            }
+            JSONObject challengeResponse = new JSONObject();
+            challengeResponse.put("challenge", challenge + 1);
+            challengeResponse.put("authToken", "eqweqwe");
 
-            PublicKey publicKey = sec.readPublicKey("src/main/keys/public.der");
-            PrivateKey privateKey = sec.readPrivateKey("src/main/keys/private.der");
-            byte[] message = "Hello World from ".getBytes("UTF8");
-            byte[] secret = sec.encrypt(publicKey, message);
-            byte[] recovered_message = sec.decrypt(privateKey, secret);
-            System.out.println(new String(recovered_message, "UTF8"));
+            PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
+            byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
 
-            conn.disconnect();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            response.setStatus(200);
+            OutputStream out = response.getOutputStream();
+            out.write(challengeResponseBytes);
+            out.close();
+//            conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        System.out.println(json.get("name"));
-        return "HEllo World";
     }
 }

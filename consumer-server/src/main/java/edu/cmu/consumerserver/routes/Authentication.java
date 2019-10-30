@@ -1,6 +1,6 @@
 package edu.cmu.consumerserver.routes;
 
-import edu.cmu.consumerserver.security.Security;
+import edu.cmu.consumerserver.security.AsymmetricKey;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -9,24 +9,41 @@ import org.springframework.web.bind.annotation.*;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
 @RestController
 public class Authentication {
-    private Security security = new Security();
+    private AsymmetricKey asymmetricKey = new AsymmetricKey();
     private String consumerDid = "2YGJ67123ABC987H";
+    private String producerHost = "http://localhost:8082";
+
+    @RequestMapping(
+            value = "/authentication/key",
+            method = RequestMethod.GET,
+            consumes = "text/plain"
+    )
+    public void setUpSymmetricKey(HttpServletResponse response) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+        StringBuilder result = new StringBuilder();
+        URL url = new URL(producerHost + "/authentication/key");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+        conn.setRequestProperty("Accept-Charset", "UTF-8");
+        conn.setRequestMethod("GET");
+
+        PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/consumer/private.der");
+        byte[] secret = asymmetricKey.decrypt(privateKey, getByteArray(conn));
+        System.out.println(new String(secret, "UTF8"));
+
+        response.setStatus(200);
+    }
 
     @RequestMapping(
             value = "/authentication/did",
@@ -36,8 +53,8 @@ public class Authentication {
     public String challenge(@RequestBody String did) {
         int status;
         try {
-            PrivateKey consumerPrivateKey = security.readPrivateKey("src/main/keys/consumer/private.der");
-            PublicKey producerPublicKey = security.readPublicKey("src/main/keys/producer/public.der");
+            PrivateKey consumerPrivateKey = asymmetricKey.readPrivateKey("src/main/keys/consumer/private.der");
+            PublicKey producerPublicKey = asymmetricKey.readPublicKey("src/main/keys/producer/public.der");
 
             JSONObject challengeMessage = new JSONObject();
 
@@ -48,28 +65,29 @@ public class Authentication {
             challengeMessage.put("DID", consumerDid);
 
             byte[] message = challengeMessage.toJSONString().getBytes(StandardCharsets.UTF_8);
-            byte[] secret = security.encrypt(producerPublicKey, message);
+            byte[] secret = asymmetricKey.encrypt(producerPublicKey, message);
 
-            URL url = new URL("http://localhost:8082");
+            URL url = new URL(producerHost + "/authentication/challenge");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
             conn.setDoOutput(true);
             // write to POST data area
-            OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
-            out.write(new String(secret, StandardCharsets.UTF_8));
+            OutputStream out = conn.getOutputStream();
+            out.write(secret);
             out.close();
 
             // get HTTP response code sent by server
             status = conn.getResponseCode();
             if (status == 200) {
-                String response = conn.getResponseMessage();
-                byte[] recovered_message = security.decrypt(consumerPrivateKey, response.getBytes());
+                byte[] recovered_message = asymmetricKey.decrypt(consumerPrivateKey, getByteArray(conn));
                 JSONParser parser = new JSONParser();
                 JSONObject json = (JSONObject) parser.parse(new String(recovered_message, StandardCharsets.UTF_8));
 
-                if ((long) json.get("challenge") == challenge) {
-                    String authtoken = json.get("authtoken").toString();
-                    //TO-DO save this to redis
+                if ((long) json.get("challenge") == (challenge + 1)) {
+                    String authToken = json.get("authToken").toString();
+                    System.out.println("Challenge complete");
                 } else {
                     return "DID could not be authenticated.";
                 }
@@ -77,28 +95,24 @@ public class Authentication {
                 return "DID could not be authenticated.";
             }
             conn.disconnect();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | ParseException | BadPaddingException |
+                NoSuchPaddingException | IllegalBlockSizeException | IOException e) {
             e.printStackTrace();
         }
 //        return "DID is authenticated.";
         return did;
+    }
+
+    private byte[] getByteArray(HttpURLConnection conn) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        try (InputStream inputStream = conn.getInputStream()) {
+            int n = 0;
+            byte[] buffer = new byte[1024];
+            while (-1 != (n = inputStream.read(buffer))) {
+                output.write(buffer, 0, n);
+            }
+        }
+        return output.toByteArray();
     }
 }
