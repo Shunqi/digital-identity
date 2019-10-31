@@ -2,9 +2,9 @@ package edu.cmu.producerserver;
 
 import edu.cmu.producerserver.service.RedisTestService;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Service;
 
-@SpringBootApplication
+@Service
 public class RedisConnectionTest implements CommandLineRunner {
     private final RedisTestService rts;
 
@@ -14,7 +14,7 @@ public class RedisConnectionTest implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        String value = rts.getValueTest();
+        String value = rts.getValue("shunqi");
         System.out.println(value);
     }
 }

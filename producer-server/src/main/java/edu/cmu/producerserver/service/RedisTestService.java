@@ -12,7 +12,7 @@ public class RedisTestService {
         this.redisTemplate = redisTemplate;
     }
 
-    public String getValueTest() {
-        return redisTemplate.opsForValue().get("shunqi");
+    public String getValue(String key) {
+        return redisTemplate.opsForValue().get(key);
     }
 }
