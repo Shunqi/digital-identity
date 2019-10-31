@@ -19,7 +19,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import java.util.Map;
 import static android.content.ContentValues.TAG;
 
 public class MyService extends FirebaseMessagingService {
@@ -31,9 +30,8 @@ public class MyService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-        }
+        String messageID = remoteMessage.getMessageId();
+        Log.d(TAG, "Message ID: " + remoteMessage.getMessageId());
 
         //Message with payload for Permissions Protocol
         if (remoteMessage.getData().size() > 0) {
@@ -85,6 +83,7 @@ public class MyService extends FirebaseMessagingService {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         Intent intent = new Intent(getApplicationContext(), AuthenticateConsumer.class);
+
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -105,10 +104,10 @@ public class MyService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setContentTitle("Consumer Authentication")
+                .setContentTitle("Authenticate Consumer")
                 .setAutoCancel(true)
                 .setSound(defaultSound)
-                .setContentText("Content here hi nandini")
+                .setContentText("Content here Nandini")
                 .setContentIntent(pendingIntent)
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_MAX);
