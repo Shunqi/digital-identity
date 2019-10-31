@@ -4,9 +4,9 @@ import edu.cmu.producerserver.model.Consumer;
 import edu.cmu.producerserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Service;
 
-@SpringBootApplication
+@Service
 public class MongoConnectionTest implements CommandLineRunner {
 
     @Autowired
