@@ -1,11 +1,5 @@
 package edu.cmu.producerserver.routes;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
 import edu.cmu.producerserver.pushnotifications.CcsClient;
 import edu.cmu.producerserver.pushnotifications.MessageHelper;
 import edu.cmu.producerserver.pushnotifications.bean.CcsOutMessage;
@@ -13,6 +7,8 @@ import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.security.SymmetricKey;
 import edu.cmu.producerserver.pushnotifications.util.*;
 
+import edu.cmu.producerserver.service.RedisTestService;
+import edu.cmu.producerserver.utils.Hashing;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.parser.JSONParser;
@@ -22,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.json.simple.JSONObject;
-import sun.security.krb5.internal.ccache.CCacheInputStream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -45,9 +40,15 @@ public class Authentication {
     public final static String API_URL_FCM = "https://fcm.googleapis.com/v1/projects/DIDPushNotifications/messages:send";
     public final static String DEVICE_ID = "dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr";
 
-    String appURL = "http://10.0.0.153:8081";
     AsymmetricKey asymmetricKey = new AsymmetricKey();
     SymmetricKey symmetricKey = new SymmetricKey();
+    Hashing hash = new Hashing();
+
+    private final RedisTestService redisClient;
+
+    public Authentication(RedisTestService redisClient) {
+        this.redisClient = redisClient;
+    }
 
     @RequestMapping(
             value = "/authentication/key",
@@ -86,6 +87,7 @@ public class Authentication {
 
         JSONObject dataJSON = (JSONObject) parser.parse(data);
         long challenge = (long) dataJSON.get("challenge");
+        String DID = (String) dataJSON.get("DID");
 
         // Make call to the app
         try {
@@ -108,9 +110,14 @@ public class Authentication {
             while(true) {
                 if(ccsClient.set) {
                     if(ccsClient.appAuthenticationResponse.equals("YES")) {
+                        String authToken = hash.getHash(DID);
+
                         JSONObject challengeResponse = new JSONObject();
                         challengeResponse.put("challenge", challenge + 1);
-                        challengeResponse.put("authToken", "eqweqwe");
+                        challengeResponse.put("authToken", authToken);
+
+                        redisClient.put(authToken, DID);
+                        redisClient.setTTL(authToken, 30);
 
                         PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
                         byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
