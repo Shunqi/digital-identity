@@ -80,6 +80,7 @@ public class Authentication {
 
             // get HTTP response code sent by server
             status = conn.getResponseCode();
+            System.out.println(status);
             if (status == 200) {
                 byte[] recovered_message = asymmetricKey.decrypt(consumerPrivateKey, getByteArray(conn));
                 JSONParser parser = new JSONParser();

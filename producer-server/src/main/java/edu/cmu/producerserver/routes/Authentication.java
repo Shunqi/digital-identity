@@ -1,8 +1,20 @@
 package edu.cmu.producerserver.routes;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import edu.cmu.producerserver.pushnotifications.CcsClient;
+import edu.cmu.producerserver.pushnotifications.MessageHelper;
+import edu.cmu.producerserver.pushnotifications.bean.CcsOutMessage;
 import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.security.SymmetricKey;
+import edu.cmu.producerserver.pushnotifications.util.*;
+
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jivesoftware.smack.XMPPException;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.json.simple.JSONObject;
+import sun.security.krb5.internal.ccache.CCacheInputStream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -19,9 +32,18 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class Authentication {
+
+    private static final long serialVersionUID = -8022560668279505764L;
+
+    // Method to send Notifications from server to client end.
+    public final static String AUTH_KEY_FCM = "AAAA1yG1bXs:APA91bGTxsybnU8wiWzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QPTUrU9OM8EG8hqD33R7qCvJ";
+    public final static String API_URL_FCM = "https://fcm.googleapis.com/v1/projects/DIDPushNotifications/messages:send";
+    public final static String DEVICE_ID = "dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr";
 
     String appURL = "http://10.0.0.153:8081";
     AsymmetricKey asymmetricKey = new AsymmetricKey();
@@ -67,30 +89,45 @@ public class Authentication {
 
         // Make call to the app
         try {
-//            URL url = new URL(appURL);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setRequestMethod("GET");
-//            conn.setRequestProperty("Accept", "application/json");
-//
-//            if(conn.getResponseCode() == 200) {
-//                // Generate auth token and store in redis
-//                //cresponse.getWriter().write(json.toJSONString());
-//            } else if(conn.getResponseCode() == 401) {
-//                // Send back saying unauthorized
-//            }
+            CcsClient ccsClient = CcsClient.prepareClient("923983506811", "AAAA1yG1bXs:APA91bGTxsybnU8wiWzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QPTUrU9OM8EG8hqD33R7qCvJ", true);
 
-            JSONObject challengeResponse = new JSONObject();
-            challengeResponse.put("challenge", challenge + 1);
-            challengeResponse.put("authToken", "eqweqwe");
+            try {
+                ccsClient.connect();
+            } catch (XMPPException e) {
+                System.out.println("System error" + e);
+            }
 
-            PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
-            byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
+            // Send a sample downstream message to a device
+            String messageId = Util.getUniqueMessageId();
+            Map<String, String> dataPayload = new HashMap<String, String>();
+//            dataPayload.put(Util.PAYLOAD_ATTRIBUTE_MESSAGE, "This is the simple sample message");
+            CcsOutMessage message = new CcsOutMessage("dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr", messageId, dataPayload);
+            String jsonRequest = MessageHelper.createJsonOutMessage(message);
+            ccsClient.send(jsonRequest);
 
-            response.setStatus(200);
-            OutputStream out = response.getOutputStream();
-            out.write(challengeResponseBytes);
-            out.close();
-//            conn.disconnect();
+            while(true) {
+                if(ccsClient.set) {
+                    if(ccsClient.appAuthenticationResponse.equals("YES")) {
+                        JSONObject challengeResponse = new JSONObject();
+                        challengeResponse.put("challenge", challenge + 1);
+                        challengeResponse.put("authToken", "eqweqwe");
+
+                        PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
+                        byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
+
+                        response.setStatus(200);
+                        OutputStream out = response.getOutputStream();
+                        out.write(challengeResponseBytes);
+                        out.close();
+                        ccsClient.set = false;
+                        break;
+                    } else {
+                        response.setStatus(401);
+                        ccsClient.set = false;
+                        break;
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
