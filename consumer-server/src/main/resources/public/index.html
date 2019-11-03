@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Consumer DID</title>
+    <style>
+        body {
+            background-color: azure;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #000000
+        }
+    </style>
+</head>
+<body>
+<h1> Welcome!</h1>
+<br><br>
+<p>Please enter the DID to authenticate</p>
+<form action="/authentication/did" method="POST" enctype="text/plain">
+    <label>Enter the DID
+        <input type="text" name="did" value=""/>
+    </label><br>
+    <input type="submit" value="Authenticate"/>
+</form>
+
+
+</body>
+</html>
