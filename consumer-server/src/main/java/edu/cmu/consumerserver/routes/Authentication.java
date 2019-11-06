@@ -1,9 +1,10 @@
 package edu.cmu.consumerserver.routes;
 
-import edu.cmu.consumerserver.security.AsymmetricKey;
+import edu.cmu.consumerserver.security.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
@@ -40,7 +41,7 @@ public class Authentication {
 
         PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/consumer/private.der");
         byte[] secret = asymmetricKey.decrypt(privateKey, getByteArray(conn));
-        System.out.println(new String(secret, "UTF8"));
+        System.out.println(new String(secret, StandardCharsets.UTF_8));
 
         response.setStatus(200);
     }
@@ -48,7 +49,8 @@ public class Authentication {
     @RequestMapping(
             value = "/authentication/did",
             method = RequestMethod.POST,
-            consumes = "text/plain"
+            consumes = "text/plain",
+            produces = MediaType.TEXT_HTML_VALUE
     )
     public String challenge(@RequestBody String did) {
         int status;
@@ -89,25 +91,26 @@ public class Authentication {
                     String authToken = json.get("authToken").toString();
                     System.out.println("Challenge complete");
                 } else {
-                    return "DID could not be authenticated.";
+                    return "<div><h3>DID could not be authenticated.</h3></div>";
                 }
             } else {
-                return "DID could not be authenticated.";
+                return "<div><h3>DID could not be authenticated.</h3></div>";
             }
             conn.disconnect();
         } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | ParseException | BadPaddingException |
                 NoSuchPaddingException | IllegalBlockSizeException | IOException e) {
             e.printStackTrace();
+            return "<div><h3>DID could not be authenticated.</h3></div>";
         }
 //        return "DID is authenticated.";
-        return did;
+        return "<div><h3>DID is authenticated.</h3></div>";
     }
 
     private byte[] getByteArray(HttpURLConnection conn) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         try (InputStream inputStream = conn.getInputStream()) {
-            int n = 0;
+            int n;
             byte[] buffer = new byte[1024];
             while (-1 != (n = inputStream.read(buffer))) {
                 output.write(buffer, 0, n);
