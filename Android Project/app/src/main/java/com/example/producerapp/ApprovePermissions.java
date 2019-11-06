@@ -23,7 +23,6 @@ public class ApprovePermissions extends Activity {
 
     ArrayList<PermissionItem> items;
     ListAdapter boxAdapter;
-    final Random random = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +75,7 @@ public class ApprovePermissions extends Activity {
             System.out.println(jsonArray.toString());
 
             ArrayList<PermissionItem> items = new ArrayList<>();
-            //Iterating the contents of the array
+
             Iterator<JSONObject> iterator = jsonArray.iterator();
             while(iterator.hasNext()) {
                 JSONObject current = iterator.next();

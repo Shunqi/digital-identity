@@ -43,9 +43,6 @@ public class MyService extends FirebaseMessagingService {
                 sendPermitNotification(remoteMessage.getData().get("permissions"));
             }
         }
-        else{
-
-        }
     }
     /**
      * Call if a new token is generated
