@@ -7,18 +7,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import java.util.ArrayList;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoCollection;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.util.Iterator;
+import java.util.Random;
 import java.util.logging.Level;
-import org.bson.Document;
+import java.util.logging.Logger;
 
 
 public class ApprovePermissions extends Activity {
 
     ArrayList<PermissionItem> items;
     ListAdapter boxAdapter;
+    final Random random = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +35,10 @@ public class ApprovePermissions extends Activity {
         intent.removeExtra("permissions");
 
         System.out.println("Extras in Approve permissions: "+extras.getString("permissions"));
-        String[] permissionsArray = extras.getString("permissions").split(",");
+        items = createArrayList(extras.getString("permissions"));
 
-        items = new ArrayList<PermissionItem>();
-        for(int i=0; i<permissionsArray.length; i++) {
-            items.add(new PermissionItem(permissionsArray[i], false));
+        for(int i=0; i<items.size(); i++){
+            System.out.println(items.get(i).category+ items.get(i).readbox+items.get(i).writebox+items.get(i).sharebox);
         }
 
         ListView lvMain = (ListView) findViewById(R.id.permissions_listView);
@@ -45,16 +49,10 @@ public class ApprovePermissions extends Activity {
         approveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Approve button clicked");
-                String result = "You selected: ";
-                for (PermissionItem p : boxAdapter.getBox()) {
-                    if (p.box) {
-                        result += " " + p.title;
 
-                    }
-                }
-                System.out.println(result +"\n");
-                //saveJSON(result);
+                String result = createJSON(boxAdapter);
+                System.out.println("Resultant json string is : " +result);
+                notifyServer(result);
 
                 Intent i = new Intent(ApprovePermissions.this, MainActivity.class);
                 startActivity(i);
@@ -70,22 +68,62 @@ public class ApprovePermissions extends Activity {
         this.setIntent(intent);
     }
 
-    public void saveJSON(String permissions){
-        java.util.logging.Logger.getLogger("org.mongodb.driver").setLevel(Level.SEVERE);
+    public ArrayList<PermissionItem> createArrayList(String jsonStr){
+        try {
+            JSONParser parser = new JSONParser() {};
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonStr);
+            JSONArray jsonArray = (JSONArray) jsonObject.get("permissions");
+            System.out.println(jsonArray.toString());
 
-        MongoClientURI uri = new MongoClientURI("");
+            ArrayList<PermissionItem> items = new ArrayList<>();
+            //Iterating the contents of the array
+            Iterator<JSONObject> iterator = jsonArray.iterator();
+            while(iterator.hasNext()) {
+                JSONObject current = iterator.next();
+                PermissionItem p = new PermissionItem((String) current.get("category"),
+                                (Boolean) current.get("read"),
+                                (Boolean) current.get("write"),
+                                (Boolean) current.get("shareable"));
+                items.add(p);
 
-        MongoClient mongoClient = new MongoClient(uri);
-        MongoDatabase database = mongoClient.getDatabase("");
-        MongoCollection<Document> collection = database.getCollection("");
-
-        Document doc = new Document("producer_DID", "")
-                .append("consumer_DID", "")
-                .append("permissions", permissions)
-                .append("access_control", "");
-                //.append("access_control", new Document("x", 203).append("y", 102));
-
-        collection.insertOne(doc);
-
+            }
+            return items;
+        } catch (ParseException ex) {
+            Logger.getLogger(ApprovePermissions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
+
+    public String createJSON(ListAdapter boxAdapter){
+
+        JSONObject jsonResponse = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+
+        for (PermissionItem p : boxAdapter.getBox()) {
+            JSONObject newEntry = new JSONObject();
+            newEntry.put("category", p.category);
+            newEntry.put("read", p.readbox);
+            newEntry.put("write", p.writebox);
+            newEntry.put("shareable", p.sharebox);
+            jsonArray.add(newEntry);
+        }
+        jsonResponse.put("permissions",jsonArray);
+
+        return jsonResponse.toJSONString();
+    }
+
+    public void notifyServer(String result){
+        Random random = new Random();
+        final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
+        final int messageId = random.nextInt(); // Increment for each
+        // [START fcm_send_upstream]
+        FirebaseMessaging.getInstance().subscribeToTopic("test");
+        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
+                .setMessageId(Integer.toString(messageId))
+                .addData("route", "Permissions")
+                .addData("approved_permissions", result)
+                .build());
+        System.out.println("Message sent to server");
+    }
+
 }

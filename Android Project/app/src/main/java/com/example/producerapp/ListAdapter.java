@@ -47,12 +47,23 @@ public class ListAdapter extends BaseAdapter {
 
         PermissionItem p = getPermissionItem(position);
 
-        ((TextView) view.findViewById(R.id.permission_title)).setText(p.title);
+        ((TextView) view.findViewById(R.id.permission_category)).setText(p.category);
 
-        CheckBox cbBuy = view.findViewById(R.id.permission_checkbox);
-        cbBuy.setOnCheckedChangeListener(myCheckChangList);
-        cbBuy.setTag(position);
-        cbBuy.setChecked(p.box);
+        CheckBox readbox = view.findViewById(R.id.permission_read);
+        readbox.setOnCheckedChangeListener(readmyCheckChangList);
+        readbox.setTag(position);
+        readbox.setChecked(p.readbox);
+
+        CheckBox writebox = view.findViewById(R.id.permission_write);
+        writebox.setOnCheckedChangeListener(writemyCheckChangList);
+        writebox.setTag(position);
+        writebox.setChecked(p.writebox);
+
+        CheckBox sharebox = view.findViewById(R.id.permission_share);
+        sharebox.setOnCheckedChangeListener(sharemyCheckChangList);
+        sharebox.setTag(position);
+        sharebox.setChecked(p.sharebox);
+
         return view;
     }
 
@@ -63,15 +74,26 @@ public class ListAdapter extends BaseAdapter {
     ArrayList<PermissionItem> getBox() {
         ArrayList<PermissionItem> box = new ArrayList();
         for (PermissionItem p : objects) {
-            if (p.box)
-                box.add(p);
+            box.add(p);
         }
         return box;
     }
 
-    CompoundButton.OnCheckedChangeListener myCheckChangList = new CompoundButton.OnCheckedChangeListener() {
+    CompoundButton.OnCheckedChangeListener readmyCheckChangList = new CompoundButton.OnCheckedChangeListener() {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            getPermissionItem((Integer) buttonView.getTag()).box = isChecked;
+            getPermissionItem((Integer) buttonView.getTag()).readbox = isChecked;
+
+        }
+    };
+    CompoundButton.OnCheckedChangeListener writemyCheckChangList = new CompoundButton.OnCheckedChangeListener() {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            getPermissionItem((Integer) buttonView.getTag()).writebox = isChecked;
+
+        }
+    };
+    CompoundButton.OnCheckedChangeListener sharemyCheckChangList = new CompoundButton.OnCheckedChangeListener() {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            getPermissionItem((Integer) buttonView.getTag()).sharebox = isChecked;
         }
     };
 }
