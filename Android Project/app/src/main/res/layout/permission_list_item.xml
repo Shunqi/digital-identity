@@ -7,20 +7,17 @@
 
     <LinearLayout
         android:id="@+id/linearLayout1"
-        android:layout_width="276dp"
-        android:layout_height="wrap_content"
+        android:layout_width="192dp"
+        android:layout_height="65dp"
         android:layout_marginStart="5dp"
-        android:layout_marginEnd="9dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        app:layout_constraintEnd_toStartOf="@+id/permission_checkbox"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/permission_title"
-            android:layout_width="307dp"
+        <TextView
+            android:id="@+id/permission_category"
+            android:layout_width="213dp"
             android:layout_height="48dp"
             android:layout_marginStart="3dp"
             android:layout_marginTop="16dp"
@@ -31,19 +28,48 @@
             android:textSize="23dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-        app:layout_constraintEnd_toStartOf="@+id/permission_checkbox"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+
     </LinearLayout>
 
     <CheckBox
-        android:id="@+id/permission_checkbox"
-        android:layout_width="31dp"
-        android:layout_height="64dp"
+        android:id="@+id/permission_share"
+        android:layout_width="40dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_gravity="center"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="47dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/permission_read"
+        android:layout_width="40dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="210dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="47dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.141"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout1"
+        app:layout_constraintStart_toStartOf="@+id/linearLayout1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/permission_write"
+        android:layout_width="40dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="47dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.535"
         app:layout_constraintStart_toEndOf="@+id/linearLayout1"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -18,7 +18,6 @@ public class AuthenticateConsumer extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authenticate_consumer);
-        //final Intent intent = getIntent();
 
         Button yesButton = findViewById(R.id.yes_button);
         Button noButton = findViewById(R.id.no_button);
@@ -26,20 +25,20 @@ public class AuthenticateConsumer extends Activity {
         yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Send message to Firebase Server
-                final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
-                final int messageId = random.nextInt(); // Increment for each
-                // [START fcm_send_upstream]
-                FirebaseMessaging.getInstance().subscribeToTopic("test");
-                FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
-                        .setMessageId(Integer.toString(messageId))
-                        .addData("my_message", "Hello World Nandini Here")
-                        .addData("my_action","SAY_HELLO")
-                        .build());
-                System.out.println("YES Clicked");
-                Intent i = new Intent(AuthenticateConsumer.this, MainActivity.class);
-                startActivity(i);
-                finish();
+            //Send message to Firebase Server
+            final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
+            final int messageId = random.nextInt(); // Increment for each
+            // [START fcm_send_upstream]
+            FirebaseMessaging.getInstance().subscribeToTopic("test");
+            FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
+                    .setMessageId(Integer.toString(messageId))
+                    .addData("route", "Authentication")
+                    .addData("message","YES")
+                    .build());
+            System.out.println("YES Clicked");
+            Intent i = new Intent(AuthenticateConsumer.this, MainActivity.class);
+            startActivity(i);
+            finish();
 
             }
         });
@@ -47,21 +46,20 @@ public class AuthenticateConsumer extends Activity {
         noButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Send message to Firebase Server
-                final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
-                final int messageId = random.nextInt(); // Increment for each
-                // [START fcm_send_upstream]
-                FirebaseMessaging.getInstance().subscribeToTopic("test");
-                FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
-                        .setMessageId(Integer.toString(messageId))
-                        .addData("my_message", "Hello World Nandini Here")
-                        .addData("my_action","SAY_HELLO")
-                        .build());
-                System.out.println("NO Clicked");
-                Intent i = new Intent(AuthenticateConsumer.this, MainActivity.class);
-                startActivity(i);
-                finish();
-
+            //Send message to Firebase Server
+            final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
+            final int messageId = random.nextInt(); // Increment for each
+            // [START fcm_send_upstream]
+            FirebaseMessaging.getInstance().subscribeToTopic("test");
+            FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
+                    .setMessageId(Integer.toString(messageId))
+                    .addData("route", "Authentication")
+                    .addData("message","NO")
+                    .build());
+            System.out.println("NO Clicked");
+            Intent i = new Intent(AuthenticateConsumer.this, MainActivity.class);
+            startActivity(i);
+            finish();
 
             }
         });

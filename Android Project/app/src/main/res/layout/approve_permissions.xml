@@ -23,8 +23,18 @@
         android:text="Approve"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="224dp"
+        android:layout_height="37dp"
+        android:text="Read      Write      Share"
+        android:textColor="#000D13"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/permissions_listView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
+    app:layout_constraintBottom_toTopOf="@+id/permissions_listView"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

@@ -35,12 +35,13 @@ public class MyService extends FirebaseMessagingService {
 
         //Message with payload for Permissions Protocol
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload, value at permissions key: " + remoteMessage.getData().get("permissions"));
-            sendPermitNotification(remoteMessage.getData().get("permissions"));
-        }
-        //Message without payload for Authentication Protocol
-        else{
-            sendAuthNotification();
+            Log.d(TAG, "Message data payload, value at permissions key: " + remoteMessage.getData().get("message"));
+            if(remoteMessage.getData().get("message").equalsIgnoreCase("Authentication")){
+                sendAuthNotification();
+            }
+            else {
+                sendPermitNotification(remoteMessage.getData().get("permissions"));
+            }
         }
     }
     /**
@@ -124,7 +125,6 @@ public class MyService extends FirebaseMessagingService {
 
             Intent intent = new Intent(getApplicationContext(), ApprovePermissions.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
 
             intent.putExtra("permissions", data);
 
