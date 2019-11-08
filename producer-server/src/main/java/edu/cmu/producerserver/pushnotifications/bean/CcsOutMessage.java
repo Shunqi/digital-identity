@@ -33,7 +33,7 @@ public class CcsOutMessage {
     public CcsOutMessage(String to, String messageId, Map<String, String> dataPayload) {
         this.to = to;
         this.messageId = messageId;
-//        this.dataPayload = dataPayload;
+        this.dataPayload = dataPayload;
     }
 
     public String getTo() {

@@ -13,10 +13,12 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.xmlpull.v1.XmlPullParser;
 
 import edu.cmu.producerserver.pushnotifications.bean.CcsInMessage;
@@ -38,7 +40,13 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public class CcsClient implements PacketListener {
     public boolean set = false;
+    public boolean permissionSet = false;
+
     public String appAuthenticationResponse = "NO";
+    public String appPermissionResponse = "NO";
+
+    public JSONObject approvedPermissions;
+
     public static final Logger logger = Logger.getLogger(CcsClient.class.getName());
 
     private static CcsClient sInstance = null;
@@ -173,21 +181,39 @@ public class CcsClient implements PacketListener {
             Object messageType = jsonMap.get("message_type");
 
             if(packet.toXML().contains("923983506811@fcm.googleapis.com")) {
-                int beginIndex = packetMessage.indexOf("{");
-                int endIndex = packetMessage.indexOf("}");
+                if(packetMessage.contains("\"route\":\"Permissions\"")) {
+                    int beginIndex = packetMessage.indexOf("{");
+                    int endIndex = packetMessage.indexOf("]");
 
-                String message = packetMessage.substring(beginIndex, endIndex + 1);
-                System.out.println("Message " + message);
-                System.out.println("Reply from App");
+                    String message = packetMessage.substring(beginIndex, endIndex + 1);
+                    JSONParser parser = new JSONParser();
+                    message = message.replaceAll("\\\\", "");
+                    String newMessage = message.substring(0, 54) + " " + message.substring(55);
+                    JSONObject messageObject = (JSONObject) parser.parse(newMessage + "}}}");
+                    JSONObject data = (JSONObject) messageObject.get("data");
 
-                JSONParser parser = new JSONParser();
-                JSONObject messageObject = (JSONObject) parser.parse(message + "}");
-                System.out.println(messageObject.toJSONString());
-                JSONObject data = (JSONObject) messageObject.get("data");
-                System.out.println(data.toJSONString());
+                    this.approvedPermissions = (JSONObject) data.get("approved_permissions");
+                    JSONArray permissionsArray = (JSONArray) approvedPermissions.get("permissions");
+                    if(permissionsArray.size() == 0) {
+                        appPermissionResponse = "NO";
+                    } else {
+                        appPermissionResponse = "YES";
+                    }
 
-                appAuthenticationResponse = (String) data.get("message");
-                set = true;
+                    permissionSet = true;
+                } else {
+                    System.out.println("Auth");
+                    int beginIndex = packetMessage.indexOf("{");
+                    int endIndex = packetMessage.indexOf("}");
+
+                    String message = packetMessage.substring(beginIndex, endIndex + 1);
+                    JSONParser parser = new JSONParser();
+                    JSONObject messageObject = (JSONObject) parser.parse(message + "}");
+                    JSONObject data = (JSONObject) messageObject.get("data");
+
+                    appAuthenticationResponse = (String) data.get("message");
+                    set = true;
+                }
             }
 
             if (messageType == null) {

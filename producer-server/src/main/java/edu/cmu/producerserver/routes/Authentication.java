@@ -91,7 +91,8 @@ public class Authentication {
 
         // Make call to the app
         try {
-            CcsClient ccsClient = CcsClient.prepareClient("923983506811", "AAAA1yG1bXs:APA91bGTxsybnU8wiWzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QPTUrU9OM8EG8hqD33R7qCvJ", true);
+            CcsClient ccsClient = CcsClient.prepareClient("923983506811", "AAAA1yG1bXs:APA91bGTxsyb" +
+                    "nU8wiWzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QPTUrU9OM8EG8hqD33R7qCvJ", true);
 
             try {
                 ccsClient.connect();
@@ -102,8 +103,9 @@ public class Authentication {
             // Send a sample downstream message to a device
             String messageId = Util.getUniqueMessageId();
             Map<String, String> dataPayload = new HashMap<String, String>();
-//            dataPayload.put(Util.PAYLOAD_ATTRIBUTE_MESSAGE, "This is the simple sample message");
-            CcsOutMessage message = new CcsOutMessage("dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr", messageId, dataPayload);
+            dataPayload.put(Util.PAYLOAD_ATTRIBUTE_MESSAGE, "Authentication");
+            CcsOutMessage message = new CcsOutMessage("dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzL" +
+                    "x-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr", messageId, dataPayload);
             String jsonRequest = MessageHelper.createJsonOutMessage(message);
             ccsClient.send(jsonRequest);
 
@@ -122,11 +124,11 @@ public class Authentication {
                         PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
                         byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
 
+                        ccsClient.set = false;
                         response.setStatus(200);
                         OutputStream out = response.getOutputStream();
                         out.write(challengeResponseBytes);
                         out.close();
-                        ccsClient.set = false;
                         break;
                     } else {
                         response.setStatus(401);
