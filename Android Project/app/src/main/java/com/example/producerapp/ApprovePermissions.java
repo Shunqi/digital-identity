@@ -51,7 +51,24 @@ public class ApprovePermissions extends Activity {
 
                 String result = createJSON(boxAdapter);
                 System.out.println("Resultant json string is : " +result);
-                notifyServer(result);
+                notifyServer(result, "YES");
+
+                Intent i = new Intent(ApprovePermissions.this, MainActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
+
+        Button rejectButton = (Button) findViewById(R.id.reject_button);
+        rejectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                JSONObject jsonResponse = new JSONObject();
+                JSONArray jsonArray = new JSONArray();
+                jsonResponse.put("permissions",jsonArray);
+                String result = jsonResponse.toJSONString();
+                notifyServer(result, "NO");
 
                 Intent i = new Intent(ApprovePermissions.this, MainActivity.class);
                 startActivity(i);
@@ -111,7 +128,7 @@ public class ApprovePermissions extends Activity {
         return jsonResponse.toJSONString();
     }
 
-    public void notifyServer(String result){
+    public void notifyServer(String result, String message){
         Random random = new Random();
         final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
         final int messageId = random.nextInt(); // Increment for each
@@ -119,6 +136,7 @@ public class ApprovePermissions extends Activity {
         FirebaseMessaging.getInstance().subscribeToTopic("test");
         FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
                 .setMessageId(Integer.toString(messageId))
+                .addData("message", message)
                 .addData("route", "Permissions")
                 .addData("approved_permissions", result)
                 .build());
