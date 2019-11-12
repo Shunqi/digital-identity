@@ -27,6 +27,14 @@
             android:name=".ApprovePermissions"
             android:parentActivityName=".MainActivity"
             android:label="@string/app_name" />
+        <activity
+            android:name=".Dashboard"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".RevokePermissions"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/app_name" />
 
         <activity
             android:name=".AuthenticateConsumer"
