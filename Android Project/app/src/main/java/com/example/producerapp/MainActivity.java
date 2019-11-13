@@ -2,15 +2,13 @@ package com.example.producerapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
-
 import com.google.firebase.FirebaseApp;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,21 +26,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getLogs();
-
             }
         });
 
-        Button revoke_button = (Button) findViewById(R.id.revoke_button);
-        revoke_button.setOnClickListener(new View.OnClickListener() {
+        Button update_button = (Button) findViewById(R.id.update_button);
+        update_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, RevokePermissions.class);
-                startActivity(i);
-                finish();
-
+                TextInputEditText textInputLayout = (TextInputEditText) findViewById(R.id.textInput);
+                String did = textInputLayout.getText().toString();
+                textInputLayout.getText().clear();
+                getPermissionSet(did);
             }
         });
 
+    }
+    private void getLogs() {
+        LogsAsync la = new LogsAsync();
+        la.getLogs(this);
     }
 
     public void showResults(String results){
@@ -54,10 +55,20 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void getLogs() {
-        LogsAsync la = new LogsAsync();
-        la.getLogs(this);
+    private void getPermissionSet(String did) {
+        PermissionsAsync pa = new PermissionsAsync();
+        pa.getLogs(did, this);
     }
+
+    public void updatePermissions(String jsonString, String did){
+        System.out.println("MainActivity jsonString: "+jsonString);
+        Intent i = new Intent(MainActivity.this, UpdatePermissions.class);
+        i.putExtra("jsonString", jsonString);
+        i.putExtra("did", did);
+        startActivity(i);
+        finish();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

@@ -32,7 +32,7 @@
             android:parentActivityName=".MainActivity"
             android:label="@string/app_name" />
         <activity
-            android:name=".RevokePermissions"
+            android:name=".UpdatePermissions"
             android:parentActivityName=".MainActivity"
             android:label="@string/app_name" />
 

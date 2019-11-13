@@ -3,29 +3,22 @@ package com.example.producerapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
-
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RevokePermissions extends Activity {
+public class UpdatePermissions extends Activity {
 
     ArrayList<PermissionItem> items;
     ListAdapter boxAdapter;
@@ -33,54 +26,38 @@ public class RevokePermissions extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.revoke_permissions);
+        setContentView(R.layout.approve_permissions);
 
-        ImageButton back_button = (ImageButton) findViewById(R.id.revoke_back_button);
-        back_button.setOnClickListener(new View.OnClickListener() {
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        System.out.println("Extras in jsonString: "+extras.getString("jsonString"));
+        items = createArrayList(extras.getString("jsonString"));
+        String did = extras.getString("did");
+
+        for(int i=0; i<items.size(); i++){
+            System.out.println(items.get(i).category+ items.get(i).readbox+items.get(i).writebox+items.get(i).sharebox);
+        }
+
+        ListView lvMain = (ListView) findViewById(R.id.permissions_listView);
+        boxAdapter = new ListAdapter(this, items);
+        lvMain.setAdapter(boxAdapter);
+
+        Button updateButton = (Button) findViewById(R.id.update_button);
+        updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(RevokePermissions.this, MainActivity.class);
+                String result = createJSON(boxAdapter);
+                System.out.println("Resultant json string is : " +result);
+                //notifyServer(result, "YES");
+
+                Intent i = new Intent(UpdatePermissions.this, MainActivity.class);
                 startActivity(i);
                 finish();
-
             }
         });
 
-        Button search_DID_button = (Button) findViewById(R.id.search_did_button);
-        search_DID_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextInputEditText textInputLayout = (TextInputEditText) findViewById(R.id.textInput);
-                //String jsonString = fetchJSONstring(textInputLayout.getEditText().getText().toString());
-                System.out.println("You typed: "+textInputLayout.getText().toString());
-                textInputLayout.getText().clear();
-
-                /*items = createArrayList(jsonString);
-                ListView lvMain = (ListView) findViewById(R.id.permissions_listView);
-                boxAdapter = new ListAdapter(this, items);
-                lvMain.setAdapter(boxAdapter);*/
-            }
-        });
-
-        Button update_button = (Button) findViewById(R.id.update_button);
-        update_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("Update Clicked");
-
-                //createJSON();
-                //notifyServer();
-                Intent i = new Intent(RevokePermissions.this, MainActivity.class);
-                startActivity(i);
-                finish();
-
-            }
-        });
     }
 
-    public String fetchJSONstring(String searchword){
-        return null;
-    }
     public ArrayList<PermissionItem> createArrayList(String jsonStr){
         try {
             JSONParser parser = new JSONParser() {};
@@ -126,17 +103,6 @@ public class RevokePermissions extends Activity {
     }
 
     public void notifyServer(String result, String message){
-        Random random = new Random();
-        final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
-        final int messageId = random.nextInt(); // Increment for each
-        // [START fcm_send_upstream]
-        FirebaseMessaging.getInstance().subscribeToTopic("test");
-        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
-                .setMessageId(Integer.toString(messageId))
-                .addData("message", message)
-                .addData("route", "Permissions")
-                .addData("approved_permissions", result)
-                .build());
-        System.out.println("Message sent to server");
+
     }
 }
