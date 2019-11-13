@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.firebase.FirebaseApp;
 
@@ -26,9 +27,8 @@ public class MainActivity extends AppCompatActivity {
         dashboard_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, Dashboard.class);
-                startActivity(i);
-                finish();
+                getLogs();
+
             }
         });
 
@@ -39,11 +39,25 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, RevokePermissions.class);
                 startActivity(i);
                 finish();
+
             }
         });
 
     }
 
+    public void showResults(String results){
+        System.out.println("showresults: "+results);
+        Intent i = new Intent(MainActivity.this, Dashboard.class);
+        i.putExtra("results", results);
+        startActivity(i);
+        finish();
+
+    }
+
+    private void getLogs() {
+        LogsAsync la = new LogsAsync();
+        la.getLogs(this);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

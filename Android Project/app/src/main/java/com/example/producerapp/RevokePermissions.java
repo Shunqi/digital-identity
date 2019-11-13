@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,6 +21,7 @@ import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,6 +62,20 @@ public class RevokePermissions extends Activity {
             }
         });
 
+        Button update_button = (Button) findViewById(R.id.update_button);
+        update_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("Update Clicked");
+
+                //createJSON();
+                //notifyServer();
+                Intent i = new Intent(RevokePermissions.this, MainActivity.class);
+                startActivity(i);
+                finish();
+
+            }
+        });
     }
 
     public String fetchJSONstring(String searchword){
@@ -87,5 +105,38 @@ public class RevokePermissions extends Activity {
             Logger.getLogger(ApprovePermissions.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public String createJSON(ListAdapter boxAdapter){
+
+        JSONObject jsonResponse = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+
+        for (PermissionItem p : boxAdapter.getBox()) {
+            JSONObject newEntry = new JSONObject();
+            newEntry.put("category", p.category);
+            newEntry.put("read", p.readbox);
+            newEntry.put("write", p.writebox);
+            newEntry.put("shareable", p.sharebox);
+            jsonArray.add(newEntry);
+        }
+        jsonResponse.put("permissions",jsonArray);
+
+        return jsonResponse.toJSONString();
+    }
+
+    public void notifyServer(String result, String message){
+        Random random = new Random();
+        final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
+        final int messageId = random.nextInt(); // Increment for each
+        // [START fcm_send_upstream]
+        FirebaseMessaging.getInstance().subscribeToTopic("test");
+        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
+                .setMessageId(Integer.toString(messageId))
+                .addData("message", message)
+                .addData("route", "Permissions")
+                .addData("approved_permissions", result)
+                .build());
+        System.out.println("Message sent to server");
     }
 }
