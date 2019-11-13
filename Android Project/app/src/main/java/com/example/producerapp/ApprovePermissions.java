@@ -32,7 +32,6 @@ public class ApprovePermissions extends Activity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         intent.removeExtra("permissions");
-
         System.out.println("Extras in Approve permissions: "+extras.getString("permissions"));
         items = createArrayList(extras.getString("permissions"));
 

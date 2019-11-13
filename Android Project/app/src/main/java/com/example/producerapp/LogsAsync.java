@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,31 +15,20 @@ public class LogsAsync {
 
     MainActivity da = null;
 
-    /*
-     * This class initializes a thread to carry out the fetching of data
-     * */
     public void getLogs(MainActivity da) {
         this.da = da;
         String a = "pp";
         new AsyncFlickrSearch().execute(a);
     }
 
-    /*
-     * AsyncTask provides a simple way to use a thread separate from the UI thread in which to do network operations.
-     * doInBackground is run in the helper thread.
-     * onPostExecute is run in the UI thread, allowing for safe UI updates.
-     * This code is referenced from the Interesting Picture code from Lab 8
-     */
+
     private class AsyncFlickrSearch extends AsyncTask<String, Void, String> {
 
-        //This function takes 2 arguments from the search string - the type and the search word
         protected String doInBackground(String... urls) {
             System.out.println("In doInBackground");
             return search(urls[0]);
         }
 
-        //This function is executed when the background process has completed.
-        // It sends the result string to the main activity
         protected void onPostExecute(String results) {
             da.showResults(results);
         }
@@ -57,7 +44,6 @@ public class LogsAsync {
                     return "Sorry no results available!";
 
                 for(int i=0; i<arr.length(); i++){
-                    //Append author name from the array
                     results.append(arr.getJSONObject(i).getString("DID")+" ");
                     results.append(arr.getJSONObject(i).getString("timestamp")+" ");
                     results.append(arr.getJSONObject(i).getString("type")+" ");
@@ -76,7 +62,6 @@ public class LogsAsync {
         }
     }
 
-
     private JSONArray getRemoteJSON(String urlstring) {
         System.out.println("In getRemoteJSON");
 
@@ -88,7 +73,6 @@ public class LogsAsync {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-            //Read the data sent from the server
             String inputLine;
             StringBuffer response = new StringBuffer();
             while ((inputLine = in.readLine()) != null) {
@@ -100,7 +84,6 @@ public class LogsAsync {
 
             return jarr;
         }
-        //Catch all possible exceptions
         catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {

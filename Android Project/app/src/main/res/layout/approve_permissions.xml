@@ -33,7 +33,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="18dp"
-        android:text="Read      Write      Share"
+        android:text="Read     Write     Share"
         android:textColor="#000D13"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/permissions_listView"
@@ -52,5 +52,14 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/approve_button"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/update_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Update"
+        app:layout_constraintBaseline_toBaselineOf="@+id/reject_button"
+        app:layout_constraintStart_toEndOf="@+id/reject_button" />
 
 </android.support.constraint.ConstraintLayout>
