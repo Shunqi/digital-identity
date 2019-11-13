@@ -12,10 +12,10 @@
     Please select the required permissions
 </h2>
 <p>Send Permissions</p>
-<button onclick="makePostCall()">Click me!</button>
+<!--<button onclick="makePostCall()">Click me!</button>-->
 <br>
 <div id="selection">
-    <form onsubmit="return makePostCall()">
+    <!--    <form onsubmit="return makePostCall()">-->
         <input type="checkbox" id="health" value="health">Health :
         <input type="checkbox" id="healthRead" value="healthRead">Read
         <input type="checkbox" id="healthWrite" value="healthWrite">Write
@@ -28,17 +28,16 @@
         <input type="checkbox" id="piiRead" value="healthRead">Read
         <input type="checkbox" id="piiWrite" value="healthWrite">Write
         <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
-        <input type="submit" value="Submit">
-    </form>
+    <!--        <input type="submit" value="Submit">-->
+    <button onclick="makePostCall()">Submit</button>
+    <!--    </form>-->
 </div>
 <div id="response">
-
 </div>
 <script type="text/javascript">
     function makePostCall() {
         let xhr = new XMLHttpRequest();
         let json = {
-            "consumerDID": "foo",
             "permissions": []
         };
         let health = document.getElementById("health").checked;
