@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Permission</title>
+</head>
+<body>
+<h1 style="color:green;">
+    Permissions
+</h1>
+<h2>
+    Please select the required permissions
+</h2>
+<p>Send Permissions</p>
+<!--<button onclick="makePostCall()">Click me!</button>-->
+<br>
+<div id="selection">
+    <!--    <form onsubmit="return makePostCall()">-->
+        <input type="checkbox" id="health" value="health">Health :
+        <input type="checkbox" id="healthRead" value="healthRead">Read
+        <input type="checkbox" id="healthWrite" value="healthWrite">Write
+        <input type="checkbox" id="healthShare" value="healthShare">Share<br>
+        <input type="checkbox" id="finance" value="finance">Finance :
+        <input type="checkbox" id="financeRead" value="healthRead">Read
+        <input type="checkbox" id="financeWrite" value="healthWrite">Write
+        <input type="checkbox" id="financeShare" value="healthShare">Share<br>
+        <input type="checkbox" id="pii" value="pii">PII :
+        <input type="checkbox" id="piiRead" value="healthRead">Read
+        <input type="checkbox" id="piiWrite" value="healthWrite">Write
+        <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
+    <!--        <input type="submit" value="Submit">-->
+    <button onclick="makePostCall()">Submit</button>
+    <!--    </form>-->
+</div>
+<div id="response">
+</div>
+<script type="text/javascript">
+    function makePostCall() {
+        let xhr = new XMLHttpRequest();
+        let json = {
+            "permissions": []
+        };
+        let health = document.getElementById("health").checked;
+        if (health) {
+            let healthRead = document.getElementById("healthRead").checked;
+            let healthWrite = document.getElementById("healthWrite").checked;
+            let healthShare = document.getElementById("healthShare").checked;
+            let healthJson = {
+                "category": "health",
+                "read": healthRead,
+                "write": healthWrite,
+                "share": healthShare
+            };
+            json.permissions.push(healthJson)
+        }
+        let finance = document.getElementById("finance").checked;
+        if (finance) {
+            let financeRead = document.getElementById("financeRead").checked;
+            let financeWrite = document.getElementById("financeWrite").checked;
+            let financeShare = document.getElementById("financeShare").checked;
+            let financeJson = {
+                "category": "finance",
+                "read": financeRead,
+                "write": financeWrite,
+                "share": financeShare
+            };
+            json.permissions.push(financeJson)
+        }
+        let pii = document.getElementById("pii").checked;
+        if (pii) {
+            let piiRead = document.getElementById("piiRead").checked;
+            let piiWrite = document.getElementById("piiWrite").checked;
+            let piiShare = document.getElementById("piiShare").checked;
+            let piiJson = {
+                "category": "PII",
+                "read": piiRead,
+                "write": piiWrite,
+                "share": piiShare
+            };
+            json.permissions.push(piiJson)
+        }
+        console.log('Json:' + JSON.stringify(json));
+        xhr.open("POST", "http://localhost:8083/permissions", true);
+        xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+        xhr.onreadystatechange = () =
+    >
+        {
+
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                console.log("OK");
+                console.log(xhr.responseText);
+                document.getElementById("response").textContent = "Permissions granted!"
+            } else if (xhr.readyState === 4 && xhr.status === 401) {
+                console.log("Rejected");
+                console.log(xhr.responseText);
+                document.getElementById("response").textContent = "Permissions denied!"
+            }
+        }
+
+        xhr.send(JSON.stringify(json));
+    }
+
+</script>
+<noscript>Sorry, your browser does not support JavaScript!</noscript>
+
+</body>
+</html>
