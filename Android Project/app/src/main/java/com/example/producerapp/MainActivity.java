@@ -1,10 +1,14 @@
 package com.example.producerapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import com.google.firebase.FirebaseApp;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,6 +21,52 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Button dashboard_button = (Button) findViewById(R.id.dashboard_button);
+        dashboard_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getLogs();
+            }
+        });
+
+        Button update_button = (Button) findViewById(R.id.update_button);
+        update_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextInputEditText textInputLayout = (TextInputEditText) findViewById(R.id.textInput);
+                String did = textInputLayout.getText().toString();
+                textInputLayout.getText().clear();
+                getPermissionSet(did);
+            }
+        });
+
+    }
+    private void getLogs() {
+        LogsAsync la = new LogsAsync();
+        la.getLogs(this);
+    }
+
+    public void showResults(String results){
+        System.out.println("showresults: "+results);
+        Intent i = new Intent(MainActivity.this, Dashboard.class);
+        i.putExtra("results", results);
+        startActivity(i);
+        finish();
+
+    }
+
+    private void getPermissionSet(String did) {
+        PermissionsAsync pa = new PermissionsAsync();
+        pa.getLogs(did, this);
+    }
+
+    public void updatePermissions(String jsonString, String did){
+        System.out.println("MainActivity jsonString: "+jsonString);
+        Intent i = new Intent(MainActivity.this, UpdatePermissions.class);
+        i.putExtra("jsonString", jsonString);
+        i.putExtra("did", did);
+        startActivity(i);
+        finish();
     }
 
     @Override

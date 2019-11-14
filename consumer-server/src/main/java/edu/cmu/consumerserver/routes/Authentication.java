@@ -1,6 +1,7 @@
 package edu.cmu.consumerserver.routes;
 
 import edu.cmu.consumerserver.security.*;
+import edu.cmu.consumerserver.util.Connection;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -10,6 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -24,6 +30,7 @@ public class Authentication {
     private AsymmetricKey asymmetricKey = new AsymmetricKey();
     private String consumerDid = "2YGJ67123ABC987H";
     private String producerHost = "http://localhost:8082";
+    private Connection connection = new Connection();
 
     @RequestMapping(
             value = "/authentication/key",
@@ -40,7 +47,7 @@ public class Authentication {
         conn.setRequestMethod("GET");
 
         PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/consumer/private.der");
-        byte[] secret = asymmetricKey.decrypt(privateKey, getByteArray(conn));
+        byte[] secret = asymmetricKey.decrypt(privateKey, connection.getByteArray(conn));
         System.out.println(new String(secret, StandardCharsets.UTF_8));
 
         response.setStatus(200);
@@ -52,8 +59,10 @@ public class Authentication {
             consumes = "text/plain",
             produces = MediaType.TEXT_HTML_VALUE
     )
-    public String challenge(@RequestBody String did) {
+    //String did
+    public void challenge(@RequestBody byte[] payload, HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
         int status;
+        String serverResponse = "";
         try {
             PrivateKey consumerPrivateKey = asymmetricKey.readPrivateKey("src/main/keys/consumer/private.der");
             PublicKey producerPublicKey = asymmetricKey.readPublicKey("src/main/keys/producer/public.der");
@@ -83,39 +92,39 @@ public class Authentication {
             // get HTTP response code sent by server
             status = conn.getResponseCode();
             if (status == 200) {
-                byte[] recovered_message = asymmetricKey.decrypt(consumerPrivateKey, getByteArray(conn));
+                byte[] recovered_message = asymmetricKey.decrypt(consumerPrivateKey, connection.getByteArray(conn));
                 JSONParser parser = new JSONParser();
                 JSONObject json = (JSONObject) parser.parse(new String(recovered_message, StandardCharsets.UTF_8));
 
                 if ((long) json.get("challenge") == (challenge + 1)) {
+                    serverResponse = "DID is authenticated.";
                     String authToken = json.get("authToken").toString();
                     System.out.println("Challenge complete");
                 } else {
-                    return "<div><h3>DID could not be authenticated.</h3></div>";
+                    serverResponse = "DID could not be authenticated.";
                 }
             } else {
-                return "<div><h3>DID could not be authenticated.</h3></div>";
+                serverResponse = "DID could not be authenticated.";
             }
             conn.disconnect();
         } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | ParseException | BadPaddingException |
                 NoSuchPaddingException | IllegalBlockSizeException | IOException e) {
             e.printStackTrace();
-            return "<div><h3>DID could not be authenticated.</h3></div>";
+            serverResponse = "DID could not be authenticated.";
         }
-//        return "DID is authenticated.";
-        return "<div><h3>DID is authenticated.</h3></div>";
-    }
-
-    private byte[] getByteArray(HttpURLConnection conn) throws IOException {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-        try (InputStream inputStream = conn.getInputStream()) {
-            int n;
-            byte[] buffer = new byte[1024];
-            while (-1 != (n = inputStream.read(buffer))) {
-                output.write(buffer, 0, n);
-            }
+        try {
+            response.setContentType("text/plain;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println(serverResponse);
+            out.close();
+//            RequestDispatcher view = request.getRequestDispatcher("permissions.html");
+//            view.forward(request, response);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return output.toByteArray();
+
+        //request.setAttribute("authentication",serverResponse);
+
+//        return "<div><h3></h3></div>";
     }
 }
