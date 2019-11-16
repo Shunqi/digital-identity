@@ -1,20 +1,29 @@
 package edu.cmu.producerserver.controller;
 
-import org.json.JSONObject;
+import edu.cmu.producerserver.model.ConsumerData;
+import edu.cmu.producerserver.repository.ConsumerDataRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/data")
 public class GetDataController {
 
+    private final ConsumerDataRepository consumerDataRepository;
+
+    public GetDataController(ConsumerDataRepository consumerDataRepository) {
+        this.consumerDataRepository = consumerDataRepository;
+    }
+
     @ResponseBody
-    @GetMapping("/{repoName}")
-    String getData(@PathVariable String repoName) {
-        JSONObject result = new JSONObject();
-        JSONObject data = new JSONObject();
-        data.put("name", "John");
-        data.put("age", "25");
-        result.put(repoName, data);
-        return result.toString();
+    @GetMapping("/{type}")
+    String getData(@PathVariable String type) {
+        ConsumerData consumerData = consumerDataRepository.findByType(type);
+
+        String result = null;
+        if (consumerData != null) {
+            result = consumerData.getData();
+        }
+
+        return result;
     }
 }

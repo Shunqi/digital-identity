@@ -12,10 +12,8 @@
     Please select the required permissions
 </h2>
 <p>Send Permissions</p>
-<!--<button onclick="makePostCall()">Click me!</button>-->
 <br>
 <div id="selection">
-    <!--    <form onsubmit="return makePostCall()">-->
         <input type="checkbox" id="health" value="health">Health :
         <input type="checkbox" id="healthRead" value="healthRead">Read
         <input type="checkbox" id="healthWrite" value="healthWrite">Write
@@ -28,14 +26,13 @@
         <input type="checkbox" id="piiRead" value="healthRead">Read
         <input type="checkbox" id="piiWrite" value="healthWrite">Write
         <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
-    <!--        <input type="submit" value="Submit">-->
-    <button onclick="makePostCall()">Submit</button>
-    <!--    </form>-->
+    <button onclick="buttonClicked()">Submit</button>
 </div>
 <div id="response">
 </div>
 <script type="text/javascript">
-    function makePostCall() {
+    function buttonClicked() {
+        console.log("HERE")
         let xhr = new XMLHttpRequest();
         let json = {
             "permissions": []
@@ -49,7 +46,7 @@
                 "category": "health",
                 "read": healthRead,
                 "write": healthWrite,
-                "share": healthShare
+                "shareable": healthShare
             };
             json.permissions.push(healthJson)
         }
@@ -62,7 +59,7 @@
                 "category": "finance",
                 "read": financeRead,
                 "write": financeWrite,
-                "share": financeShare
+                "shareable": financeShare
             };
             json.permissions.push(financeJson)
         }
@@ -75,7 +72,7 @@
                 "category": "PII",
                 "read": piiRead,
                 "write": piiWrite,
-                "share": piiShare
+                "shareable": piiShare
             };
             json.permissions.push(piiJson)
         }
@@ -92,11 +89,9 @@
                 document.getElementById("response").textContent = "Permissions granted!"
             } else if (xhr.readyState === 4 && xhr.status === 401) {
                 console.log("Rejected");
-                console.log(xhr.responseText);
                 document.getElementById("response").textContent = "Permissions denied!"
             }
         }
-
         xhr.send(JSON.stringify(json));
     }
 

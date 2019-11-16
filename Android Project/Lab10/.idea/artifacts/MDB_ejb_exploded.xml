@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-ejb" name="MDB:ejb exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/MDB_ejb_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="MDB/ejb/EJB" />
+      <element id="module-output" name="MDB" />
+    </root>
+  </artifact>
+</component>

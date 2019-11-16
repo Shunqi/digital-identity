@@ -18,7 +18,7 @@ import java.net.URL;
 
 @RestController
 public class Permissions {
-    private String producerHost = "http://localhost:8082";
+    private String producerHost = "http://128.237.192.195:8082";
     private Connection connection = new Connection();
     private String consumerDID = "2YGJ67123ABC987H";
 
@@ -28,7 +28,6 @@ public class Permissions {
             consumes = "text/plain"
     )
     public void requestPermission(@RequestBody String permissions, HttpServletResponse response) throws ParseException {
-        System.out.println("Hello");
         JSONParser parser = new JSONParser();
         JSONObject dataJSON = (JSONObject) parser.parse(permissions);
         dataJSON.put("consumerDID", consumerDID);
@@ -50,16 +49,12 @@ public class Permissions {
             status = conn.getResponseCode();
             if (status == 200) {
                 response.setStatus(200);
-//                response.setContentType("text/plain;charset=UTF-8");
-//                PrintWriter output = response.getWriter();
-//                output.println(new String(connection.getByteArray(conn)));
-//                output.close();
+                response.setContentType("text/plain;charset=UTF-8");
+                PrintWriter output = response.getWriter();
+                output.println(connection.inputStream(conn));
+                output.close();
             } else {
                 response.setStatus(401);
-//                response.setContentType("text/plain;charset=UTF-8");
-//                PrintWriter output = response.getWriter();
-//                output.println("Permission denied.");
-//                output.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
