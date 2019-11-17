@@ -7,12 +7,14 @@ import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.security.SymmetricKey;
 import edu.cmu.producerserver.pushnotifications.util.*;
 
-import edu.cmu.producerserver.service.RedisTestService;
+import edu.cmu.producerserver.service.RedisService;
 import edu.cmu.producerserver.utils.Hashing;
+import edu.cmu.producerserver.utils.Logger;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +34,7 @@ import java.util.Map;
 
 @RestController
 public class Authentication {
+    String producerDID = "T3CS82NLOD9KIW8X";
 
     private static final long serialVersionUID = -8022560668279505764L;
 
@@ -44,9 +47,12 @@ public class Authentication {
     SymmetricKey symmetricKey = new SymmetricKey();
     Hashing hash = new Hashing();
 
-    private final RedisTestService redisClient;
+    @Autowired
+    private Logger logger;
 
-    public Authentication(RedisTestService redisClient) {
+    private final RedisService redisClient;
+
+    public Authentication(RedisService redisClient) {
         this.redisClient = redisClient;
     }
 
@@ -123,6 +129,8 @@ public class Authentication {
 
                         PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
                         byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
+                        System.out.println(logger);
+                        logger.log(DID,"Authentication", "/authentication/challenge", "Accepted", "DID authenticated");
 
                         ccsClient.set = false;
                         response.setStatus(200);
@@ -131,6 +139,7 @@ public class Authentication {
                         out.close();
                         break;
                     } else {
+                        logger.log(DID,"Authentication", "/authentication/challenge", "Rejected", "DID not authenticated");
                         response.setStatus(401);
                         ccsClient.set = false;
                         break;

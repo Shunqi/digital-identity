@@ -30,8 +30,7 @@ public class PermissionsAsync {
         }
 
         private String search(String searchWord) {
-            //CHANGE URL, add searchword in urlstring
-            String jsonString = getRemoteJSON("http://128.237.192.195:8082/permissions?did="+searchWord);
+            String jsonString = getRemoteJSON("http://128.237.116.103:8082/permissions?did="+searchWord);
             return jsonString;
         }
     }

@@ -36,7 +36,7 @@ public class LogsAsync {
 
         private String search(String searchWord) {
             StringBuilder results = new StringBuilder();
-            JSONArray arr = getRemoteJSON("http://128.237.132.196:8082/logs");
+            JSONArray arr = getRemoteJSON("http://128.237.116.103:8082/logs");
 
             try {
 
@@ -44,13 +44,13 @@ public class LogsAsync {
                     return "Sorry no results available!";
 
                 for(int i=0; i<arr.length(); i++){
-                    results.append(arr.getJSONObject(i).getString("DID")+" ");
-                    results.append(arr.getJSONObject(i).getString("timestamp")+" ");
-                    results.append(arr.getJSONObject(i).getString("type")+" ");
-                    results.append(arr.getJSONObject(i).getString("route")+" ");
-                    results.append(arr.getJSONObject(i).getString("status")+" ");
-                    results.append(arr.getJSONObject(i).getString("message"));
-                    results.append("\n");
+                    results.append("DID: "+arr.getJSONObject(i).getString("DID")+"\n");
+                    results.append("Timestamp: "+arr.getJSONObject(i).getString("timestamp")+"\n");
+                    results.append("Type: "+arr.getJSONObject(i).getString("type")+" ");
+                    results.append("Route: "+arr.getJSONObject(i).getString("route")+"\n");
+                    results.append("Status: "+arr.getJSONObject(i).getString("status")+"\n");
+                    results.append("Message: "+arr.getJSONObject(i).getString("message"));
+                    results.append("\n\n");
                 }
                 System.out.println("in async search result string: "+ results.toString());
                 return results.toString();
@@ -66,9 +66,8 @@ public class LogsAsync {
         System.out.println("In getRemoteJSON");
 
         try {
-            //Create a url from the string provided
+
             URL url = new URL(urlstring);
-            //Open a connection to the url
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

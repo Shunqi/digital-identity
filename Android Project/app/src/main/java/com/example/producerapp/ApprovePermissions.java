@@ -44,6 +44,7 @@ public class ApprovePermissions extends Activity {
         lvMain.setAdapter(boxAdapter);
 
         Button approveButton = (Button) findViewById(R.id.approve_button);
+        approveButton.setVisibility(View.VISIBLE);
         approveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,6 +60,7 @@ public class ApprovePermissions extends Activity {
         });
 
         Button rejectButton = (Button) findViewById(R.id.reject_button);
+        rejectButton.setVisibility(View.VISIBLE);
         rejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,6 +76,9 @@ public class ApprovePermissions extends Activity {
                 finish();
             }
         });
+
+        Button updateButton = (Button) findViewById(R.id.update_button);
+        updateButton.setVisibility(View.INVISIBLE);
 
     }
 
