@@ -7,7 +7,7 @@ import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.security.SymmetricKey;
 import edu.cmu.producerserver.pushnotifications.util.*;
 
-import edu.cmu.producerserver.service.RedisTestService;
+import edu.cmu.producerserver.service.RedisService;
 import edu.cmu.producerserver.utils.Hashing;
 import edu.cmu.producerserver.utils.Logger;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -50,9 +50,9 @@ public class Authentication {
     @Autowired
     private Logger logger;
 
-    private final RedisTestService redisClient;
+    private final RedisService redisClient;
 
-    public Authentication(RedisTestService redisClient) {
+    public Authentication(RedisService redisClient) {
         this.redisClient = redisClient;
     }
 
