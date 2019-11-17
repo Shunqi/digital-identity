@@ -136,6 +136,7 @@ public class Authentication {
                         break;
                     }
                 }
+                count ++;
             }
         } catch (Exception e) {
             e.printStackTrace();
