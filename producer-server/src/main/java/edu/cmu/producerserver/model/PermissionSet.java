@@ -18,4 +18,12 @@ public class PermissionSet {
 
         return data.toJSONString();
     }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public boolean isReadable() {
+        return this.read;
+    }
 }

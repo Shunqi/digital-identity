@@ -39,4 +39,13 @@ public class Permission {
     public List<PermissionSet> getPermissions() {
         return permissions;
     }
+
+    public PermissionSet getPermission(String category) {
+        for (PermissionSet permissionSet : this.permissions) {
+            if (permissionSet.getCategory().equals(category)) {
+                return permissionSet;
+            }
+        }
+        return null;
+    }
 }
