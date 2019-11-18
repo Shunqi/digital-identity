@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -31,6 +28,7 @@ public class Authentication {
     private String consumerDid = "2YGJ67123ABC987H";
     private String producerHost = "http://localhost:8082";
     private Connection connection = new Connection();
+    public String authToken = "";
 
     @RequestMapping(
             value = "/authentication/key",
@@ -59,10 +57,9 @@ public class Authentication {
             consumes = "text/plain",
             produces = MediaType.TEXT_HTML_VALUE
     )
-    //String did
-    public void challenge(@RequestBody byte[] payload, HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
+    public void challenge(@RequestBody String did, HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
         int status;
-        String serverResponse = "";
+        boolean serverResponse = false;
         try {
             PrivateKey consumerPrivateKey = asymmetricKey.readPrivateKey("src/main/keys/consumer/private.der");
             PublicKey producerPublicKey = asymmetricKey.readPublicKey("src/main/keys/producer/public.der");
@@ -73,7 +70,7 @@ public class Authentication {
             long challenge = random.nextLong();
 
             challengeMessage.put("challenge", challenge);
-            challengeMessage.put("DID", consumerDid);
+            challengeMessage.put("DID", did);
 
             byte[] message = challengeMessage.toJSONString().getBytes(StandardCharsets.UTF_8);
             byte[] secret = asymmetricKey.encrypt(producerPublicKey, message);
@@ -97,34 +94,20 @@ public class Authentication {
                 JSONObject json = (JSONObject) parser.parse(new String(recovered_message, StandardCharsets.UTF_8));
 
                 if ((long) json.get("challenge") == (challenge + 1)) {
-                    serverResponse = "DID is authenticated.";
-                    String authToken = json.get("authToken").toString();
+                    serverResponse = true;
+                    authToken = json.get("authToken").toString();
                     System.out.println("Challenge complete");
-                } else {
-                    serverResponse = "DID could not be authenticated.";
                 }
-            } else {
-                serverResponse = "DID could not be authenticated.";
             }
             conn.disconnect();
         } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | ParseException | BadPaddingException |
                 NoSuchPaddingException | IllegalBlockSizeException | IOException e) {
             e.printStackTrace();
-            serverResponse = "DID could not be authenticated.";
-        }
-        try {
-            response.setContentType("text/plain;charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println(serverResponse);
-            out.close();
-//            RequestDispatcher view = request.getRequestDispatcher("permissions.html");
-//            view.forward(request, response);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
-        //request.setAttribute("authentication",serverResponse);
-
-//        return "<div><h3></h3></div>";
+        if (serverResponse)
+            response.setStatus(200);
+        else
+            response.setStatus(401);
     }
 }

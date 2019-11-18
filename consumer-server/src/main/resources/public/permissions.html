@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Request Permission</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+    </style>
 </head>
 <body>
-<h1 style="color:green;">
-    Permissions
-</h1>
+<h1 style="color:green; text-align: center">Permissions</h1>
 <h2>
     Please select the required permissions
 </h2>
@@ -28,11 +31,11 @@
         <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
     <button onclick="buttonClicked()">Submit</button>
 </div>
-<div id="response">
-</div>
+<div id="response"></div>
+<div id="responseText"></div>
 <script type="text/javascript">
     function buttonClicked() {
-        console.log("HERE")
+        console.log("HERE");
         let xhr = new XMLHttpRequest();
         let json = {
             "permissions": []
@@ -76,22 +79,21 @@
             };
             json.permissions.push(piiJson)
         }
-        console.log('Json:' + JSON.stringify(json));
         xhr.open("POST", "http://localhost:8083/permissions", true);
         xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
         xhr.onreadystatechange = () =
     >
         {
-
             if (xhr.readyState === 4 && xhr.status === 200) {
                 console.log("OK");
-                console.log(xhr.responseText);
-                document.getElementById("response").textContent = "Permissions granted!"
+                document.getElementById("response").textContent = "Permissions granted!";
+                document.getElementById("responseText").textContent = xhr.responseText;
             } else if (xhr.readyState === 4 && xhr.status === 401) {
                 console.log("Rejected");
-                document.getElementById("response").textContent = "Permissions denied!"
+                document.getElementById("response").textContent = "Permissions denied!";
             }
         }
+        console.log(JSON.stringify(json));
         xhr.send(JSON.stringify(json));
     }
 
