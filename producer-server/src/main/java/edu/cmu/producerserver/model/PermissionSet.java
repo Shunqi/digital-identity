@@ -26,4 +26,8 @@ public class PermissionSet {
     public boolean isReadable() {
         return this.read;
     }
+
+    public boolean isWritable() {
+        return this.write;
+    }
 }
