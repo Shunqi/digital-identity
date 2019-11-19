@@ -15,10 +15,10 @@ public class PermissionsAsync {
     public void getLogs(String did, MainActivity da) {
         this.da = da;
         this.did = did;
-        new AsyncFlickrSearch().execute(did);
+        new AsyncSearch().execute(did);
     }
 
-    private class AsyncFlickrSearch extends AsyncTask<String, Void, String> {
+    private class AsyncSearch extends AsyncTask<String, Void, String> {
 
         protected String doInBackground(String... urls) {
             System.out.println("In doInBackground");
@@ -30,7 +30,8 @@ public class PermissionsAsync {
         }
 
         private String search(String searchWord) {
-            String jsonString = getRemoteJSON("http://128.237.116.103:8082/permissions?did="+searchWord);
+            ServerDetails url = new ServerDetails();
+            String jsonString = getRemoteJSON(url.urlString+"/permissions?did="+searchWord);
             return jsonString;
         }
     }
