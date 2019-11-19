@@ -103,6 +103,6 @@ public class DataRetrievalController {
         }
         consumerDataRepository.save(consumerData);
 
-        return payload.toString();
+        return "{\"status\": \"Success\"}";
     }
 }
