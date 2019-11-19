@@ -18,7 +18,7 @@ import java.net.URL;
 
 @RestController
 public class Permissions {
-    private String producerHost = "http://128.237.192.195:8082";
+    private String producerHost = "http://localhost:8082";
     private Connection connection = new Connection();
     private String consumerDID = "2YGJ67123ABC987H";
 
@@ -58,6 +58,7 @@ public class Permissions {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            response.setStatus(401);
         }
     }
 }

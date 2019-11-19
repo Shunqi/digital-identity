@@ -5,23 +5,45 @@
     <title>Consumer DID</title>
     <style>
         body {
-            background-color: azure;
+            background-color: ghostwhite;
             margin: 20px;
-        }
-        h1 {
-            color: #000000
+            font-family: sans-serif;
         }
     </style>
 </head>
 <body>
-<h1> Welcome!</h1>
+<div style="background-color: royalblue"><h1 style="color: white; text-align: center;">Welcome!</h1></div>
 <br><br>
-<p>Please enter the DID to authenticate</p>
-<form action="/authentication/did" method="POST" enctype="text/plain">
+<p>Please enter the DID to authenticate</p><br>
     <label>Enter the DID
-        <input type="text" name="did" value=""/>
+        <input type="text" id="did" value=""/>
     </label><br>
-    <input type="submit" value="Authenticate"/>
-</form>
+<button onclick="buttonClick()">Authenticate</button>
+<br><br><br>
+<div id="response"></div>
+<br><br>
+<button style="display:none" id="permissionButton"><a href="permissions.html">Get Permissions</a></button>
+
+<script type="text/javascript">
+    function buttonClick() {
+        let xhr = new XMLHttpRequest();
+        let did = document.getElementById("did").value;
+        xhr.open("POST", "http://localhost:8083/authentication/did", true);
+        xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+        xhr.onreadystatechange = () =
+    >
+        {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                console.log("OK");
+                document.getElementById("response").textContent = "DID is authenticated.";
+                document.getElementById("permissionButton").style.display = "block";
+            } else if (xhr.readyState === 4 && xhr.status === 401) {
+                document.getElementById("response").textContent = "DID could not be authenticated."
+            }
+        }
+        xhr.send(did);
+    }
+</script>
+<noscript>Sorry, your browser does not support JavaScript!</noscript>
 </body>
 </html>
