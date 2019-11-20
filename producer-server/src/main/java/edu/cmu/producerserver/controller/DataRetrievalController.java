@@ -5,10 +5,22 @@ import edu.cmu.producerserver.model.Permission;
 import edu.cmu.producerserver.model.PermissionSet;
 import edu.cmu.producerserver.repository.ConsumerDataRepository;
 import edu.cmu.producerserver.repository.PermissionRepository;
+import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.service.RedisService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.Map;
 
 @RestController
@@ -18,18 +30,20 @@ public class DataRetrievalController {
     private final ConsumerDataRepository consumerDataRepository;
     private final RedisService redisClient;
     private final PermissionRepository permissionRepository;
+    private static AsymmetricKey asymmetricKey;
 
     public DataRetrievalController(ConsumerDataRepository consumerDataRepository, RedisService redisClient,
                                    PermissionRepository permissionRepository) {
         this.consumerDataRepository = consumerDataRepository;
         this.redisClient = redisClient;
         this.permissionRepository = permissionRepository;
+        asymmetricKey = new AsymmetricKey();
     }
 
     @ResponseBody
     @GetMapping("/{category}")
     String getData(@PathVariable String category, @RequestParam(name = "authtoken") String authtoken,
-                   HttpServletResponse response) {
+                   HttpServletResponse response) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String data = null;
 
         // check authtoken
@@ -54,23 +68,31 @@ public class DataRetrievalController {
         }
 
         ConsumerData consumerData = consumerDataRepository.findByType(category);
-
         if (consumerData != null) {
             data = consumerData.getData();
         }
+
+        if (data != null) {
+            PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/producer/private.der");
+            byte[] secret = asymmetricKey.decrypt(privateKey, Base64.getDecoder().decode(data.getBytes()));
+            data = new String(secret, StandardCharsets.UTF_8);
+        }
+
         return data;
     }
 
     @ResponseBody
     @PostMapping("/{category}")
-    String writeData(@PathVariable String category, @RequestBody Map<String, String> payload,
-            HttpServletResponse response) {
-        String authtoken = payload.getOrDefault("authtoken", null);
-        String data = payload.getOrDefault("data", null);
-        if (authtoken == null || data == null) {
+    String writeData(@PathVariable String category, @RequestBody Map<String, Object> payload,
+                     HttpServletResponse response) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+        String authtoken = (String) payload.getOrDefault("authtoken", null);
+        Object payloadData = payload.getOrDefault("data", null);
+        if (authtoken == null || payloadData == null) {
             response.setStatus(401);
             return "{\"errMsg\": \"Missing required field\"}";
         }
+
+        String data = payloadData.toString();
 
         // check authtoken
         String consumerDID = redisClient.getValue(authtoken);
@@ -93,13 +115,18 @@ public class DataRetrievalController {
             return "{\"errMsg\": \"Unauthorized\"}";
         }
 
+        PublicKey publicKey = asymmetricKey.readPublicKey("src/main/keys/producer/public.der");
+        System.out.println(data);
+        byte[] secret = asymmetricKey.encrypt(publicKey, data.getBytes(StandardCharsets.UTF_8));
+        String encryptedData = Base64.getEncoder().encodeToString(secret);
+
         ConsumerData consumerData = consumerDataRepository.findByType(category);
         if (consumerData == null) {
             // create new data
-            consumerData = new ConsumerData(category, data);
+            consumerData = new ConsumerData(category, encryptedData);
         } else {
             // update data
-            consumerData.setData(data);
+            consumerData.setData(encryptedData);
         }
         consumerDataRepository.save(consumerData);
 
