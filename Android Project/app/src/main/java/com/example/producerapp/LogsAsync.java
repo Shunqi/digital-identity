@@ -18,15 +18,15 @@ public class LogsAsync {
     public void getLogs(MainActivity da) {
         this.da = da;
         String a = "pp";
-        new AsyncFlickrSearch().execute(a);
+        new AsyncSearch().execute();
     }
 
 
-    private class AsyncFlickrSearch extends AsyncTask<String, Void, String> {
+    private class AsyncSearch extends AsyncTask<String, Void, String> {
 
         protected String doInBackground(String... urls) {
             System.out.println("In doInBackground");
-            return search(urls[0]);
+            return search();
         }
 
         protected void onPostExecute(String results) {
@@ -34,9 +34,10 @@ public class LogsAsync {
         }
 
 
-        private String search(String searchWord) {
+        private String search() {
             StringBuilder results = new StringBuilder();
-            JSONArray arr = getRemoteJSON("http://128.237.116.103:8082/logs");
+            ServerDetails url = new ServerDetails();
+            JSONArray arr = getRemoteJSON(url.urlString+"/logs");
 
             try {
 

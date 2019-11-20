@@ -15,10 +15,10 @@ public class UpdateAsync {
     public void writeToURL(String result, UpdatePermissions ua) {
         System.out.println("In writetoURL: "+ result);
         this.ua = ua;
-        new AsyncFlickrSearch().execute(result);
+        new AsyncSearch().execute(result);
     }
 
-    private class AsyncFlickrSearch extends AsyncTask<String, Void, String> {
+    private class AsyncSearch extends AsyncTask<String, Void, String> {
 
         protected String doInBackground(String... urls) {
             System.out.println("In UpdateAsync doInBackground");
@@ -34,7 +34,8 @@ public class UpdateAsync {
 
             try {
                 System.out.println("result: "+result);
-                URL url = new URL("http://128.237.116.103:8082/update/permissions");
+                ServerDetails urlstr = new ServerDetails();
+                URL url = new URL(urlstr.urlString+"/update/permissions");
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("POST");
                 con.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
@@ -43,6 +44,7 @@ public class UpdateAsync {
                 out.write(result.getBytes());
                 out.flush();
                 out.close();
+                System.out.println("Response Code: "+con.getResponseCode());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
