@@ -8,6 +8,7 @@ import edu.cmu.producerserver.security.SymmetricKey;
 import edu.cmu.producerserver.pushnotifications.util.*;
 
 import edu.cmu.producerserver.service.RedisService;
+import edu.cmu.producerserver.service.Transaction;
 import edu.cmu.producerserver.utils.Hashing;
 import edu.cmu.producerserver.utils.Logger;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -46,14 +47,17 @@ public class Authentication {
     AsymmetricKey asymmetricKey = new AsymmetricKey();
     SymmetricKey symmetricKey = new SymmetricKey();
     Hashing hash = new Hashing();
+//    Transaction transaction = new Transaction();
 
     @Autowired
     private Logger logger;
 
     private final RedisService redisClient;
 
-    public Authentication(RedisService redisClient) {
+    public Authentication(RedisService redisClient) throws Exception {
         this.redisClient = redisClient;
+//        transaction.setKey("Vinit", "Shah");
+//        System.out.println(transaction.getKey("Vinit"));
     }
 
     @RequestMapping(

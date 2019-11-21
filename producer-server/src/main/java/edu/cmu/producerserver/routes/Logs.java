@@ -23,7 +23,6 @@ public class Logs {
             method = RequestMethod.GET
     )
     public void getLogs(HttpServletResponse response) throws IOException {
-        System.out.println("Logs asked");
         response.setStatus(200);
         OutputStream out = response.getOutputStream();
         out.write(logger.findAll().toString().getBytes());

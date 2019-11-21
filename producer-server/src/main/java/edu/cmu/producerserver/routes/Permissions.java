@@ -114,6 +114,7 @@ public class Permissions {
             consumes = "text/plain"
     )
     public void updatePermissions(@RequestBody String document,  HttpServletResponse response) throws ParseException, IOException {
+        System.out.println("Inside update");
         JSONParser parser = new JSONParser();
         JSONObject dataJSON = (JSONObject) parser.parse(document);
         String consumerDID = (String) dataJSON.get("consumerDID");
