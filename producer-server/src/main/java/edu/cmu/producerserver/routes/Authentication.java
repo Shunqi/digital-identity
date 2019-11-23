@@ -27,6 +27,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -35,7 +36,8 @@ import java.util.Map;
 
 @RestController
 public class Authentication {
-    String producerDID = "T3CS82NLOD9KIW8X";
+    private static final String producerDID = "T3CS82NLOD9KIW8X";
+    private static final String consumerDID = "2YGJ67123ABC987H";
 
     private static final long serialVersionUID = -8022560668279505764L;
 
@@ -44,10 +46,18 @@ public class Authentication {
     public final static String API_URL_FCM = "https://fcm.googleapis.com/v1/projects/DIDPushNotifications/messages:send";
     public final static String DEVICE_ID = "dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr";
 
+    // RSA private key for Producer
+    private static final String pn = "23125112666426093876263740909764910339347312551313945559240958270498185928023218019" +
+            "0106921111613716541064347138357563940947734110924610394534466816125228346183846412686151923456654254591206" +
+            "2460393823188503721918025583888570206681611568376689";
+    private static final String pd = "12300554305989191335071089737314872124595988762665427807118723855372793406028493524" +
+            "92046823924020653771381531233218590867874292706821045946917359993739030953185269621984367826097994320512372" +
+            "66851512692162683998375202714562516423826155184313";
+
     AsymmetricKey asymmetricKey = new AsymmetricKey();
     SymmetricKey symmetricKey = new SymmetricKey();
     Hashing hash = new Hashing();
-//    Transaction transaction = new Transaction();
+    Transaction transaction = new Transaction();
 
     @Autowired
     private Logger logger;
@@ -56,8 +66,6 @@ public class Authentication {
 
     public Authentication(RedisService redisClient) throws Exception {
         this.redisClient = redisClient;
-//        transaction.setKey("Vinit", "Shah");
-//        System.out.println(transaction.getKey("Vinit"));
     }
 
     @RequestMapping(
@@ -86,16 +94,15 @@ public class Authentication {
             method = RequestMethod.POST,
             consumes = "text/plain"
     )
-    public void challenge(@RequestBody byte[] payload, HttpServletResponse response) throws ParseException, IOException,
-            NoSuchAlgorithmException, InvalidKeySpecException, IllegalBlockSizeException, InvalidKeyException,
-            BadPaddingException, NoSuchPaddingException {
+    public void challenge(@RequestBody byte[] payload, HttpServletResponse response) throws ParseException, IOException {
         JSONParser parser = new JSONParser();
-        PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/producer/private.der");
+//        PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/producer/private.der");
+//        byte[] secret = asymmetricKey.decrypt(privateKey, payload);
+//        String data = new String(secret, "UTF8");
+        BigInteger data = decryptData(new BigInteger(payload), pd, pn);
+        System.out.println(new String(data.toByteArray(), "UTF8"));
 
-        byte[] secret = asymmetricKey.decrypt(privateKey, payload);
-        String data = new String(secret, "UTF8");
-
-        JSONObject dataJSON = (JSONObject) parser.parse(data);
+        JSONObject dataJSON = (JSONObject) parser.parse(new String(data.toByteArray(), "UTF8"));
         long challenge = (long) dataJSON.get("challenge");
         String DID = (String) dataJSON.get("DID");
 
@@ -122,6 +129,9 @@ public class Authentication {
             while(true) {
                 if(ccsClient.set) {
                     if(ccsClient.appAuthenticationResponse.equals("YES")) {
+                        String consumerKeys = transaction.getKey(consumerDID);
+                        String ce = consumerKeys.split(",")[0];
+                        String cn = consumerKeys.split(",")[1];
                         String authToken = hash.getHash(DID);
 
                         JSONObject challengeResponse = new JSONObject();
@@ -131,15 +141,18 @@ public class Authentication {
                         redisClient.put(authToken, DID);
                         redisClient.setTTL(authToken, 30);
 
-                        PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
-                        byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
-                        System.out.println(logger);
+                        byte[] secretBytes = challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8);
+                        BigInteger secret = encryptData(secretBytes, ce, cn);
+
+//                        PublicKey consumerPublicKey = asymmetricKey.readPublicKey("src/main/keys/consumer/public.der");
+//                        byte[] challengeResponseBytes = asymmetricKey.encrypt(consumerPublicKey, challengeResponse.toJSONString().getBytes(StandardCharsets.UTF_8));
+
                         logger.log(DID,"Authentication", "/authentication/challenge", "Accepted", "DID authenticated");
 
                         ccsClient.set = false;
                         response.setStatus(200);
                         OutputStream out = response.getOutputStream();
-                        out.write(challengeResponseBytes);
+                        out.write(secret.toByteArray());
                         out.close();
                         break;
                     } else {
@@ -153,5 +166,16 @@ public class Authentication {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private BigInteger encryptData(byte[] data, String e, String n) {
+        BigInteger m = new BigInteger(data);
+        BigInteger c = m.modPow(new BigInteger(e), new BigInteger(n));
+        return c;
+    }
+
+    private BigInteger decryptData(BigInteger data, String ed, String n) {
+        BigInteger decryptedData = data.modPow(new BigInteger(ed), new BigInteger(n));
+        return decryptedData;
     }
 }

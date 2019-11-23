@@ -50,6 +50,12 @@
             <artifactId>firebase-admin</artifactId>
             <version>6.10.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>core</artifactId>
+            <version>4.5.5</version>
+        </dependency>
     </dependencies>
 
 

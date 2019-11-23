@@ -1,9 +1,7 @@
-package edu.cmu.producerserver.service;
+package edu.cmu.consumerserver.service;
 
-import edu.cmu.producerserver.contract.PublicKeys;
-import org.web3j.crypto.CipherException;
+import edu.cmu.consumerserver.contract.PublicKeys;
 import org.web3j.crypto.Credentials;
-import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
@@ -24,8 +22,7 @@ public class Transaction {
 
     public Transaction() throws Exception {
         Web3j web3j = Web3j.build(new HttpService());
-        printWeb3Version(web3j);
-
+        printWeb3Version(web3j);//
         // Load Contract
         publicKeys  = loadContract(deployedAddress, web3j,  getCredentialsFromPrivateKey());
         System.out.println("Contract address after loading:  " + publicKeys.getContractAddress());

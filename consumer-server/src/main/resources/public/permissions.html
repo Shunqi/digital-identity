@@ -10,32 +10,8 @@
     </style>
 </head>
 <body>
-<h1 style="color:green; text-align: center">Permissions</h1>
-<h2>
-    Please select the required permissions
-</h2>
-<p>Send Permissions</p>
-<br>
-<div id="selection">
-        <input type="checkbox" id="health" value="health">Health :
-        <input type="checkbox" id="healthRead" value="healthRead">Read
-        <input type="checkbox" id="healthWrite" value="healthWrite">Write
-        <input type="checkbox" id="healthShare" value="healthShare">Share<br>
-        <input type="checkbox" id="finance" value="finance">Finance :
-        <input type="checkbox" id="financeRead" value="healthRead">Read
-        <input type="checkbox" id="financeWrite" value="healthWrite">Write
-        <input type="checkbox" id="financeShare" value="healthShare">Share<br>
-        <input type="checkbox" id="pii" value="pii">PII :
-        <input type="checkbox" id="piiRead" value="healthRead">Read
-        <input type="checkbox" id="piiWrite" value="healthWrite">Write
-        <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
-    <button onclick="buttonClicked()">Submit</button>
-</div>
-<div id="response"></div>
-<div id="responseText"></div>
 <script type="text/javascript">
     function buttonClicked() {
-        console.log("HERE");
         let xhr = new XMLHttpRequest();
         let json = {
             "permissions": []
@@ -81,8 +57,7 @@
         }
         xhr.open("POST", "http://localhost:8083/permissions", true);
         xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
-        xhr.onreadystatechange = () =
-    >
+        xhr.onreadystatechange = () =>
         {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 console.log("OK");
@@ -98,6 +73,29 @@
     }
 
 </script>
+<h1 style="color:green; text-align: center">Permissions</h1>
+<h2>
+    Please select the required permissions
+</h2>
+<p>Send Permissions</p>
+<br>
+<div id="selection">
+        <input type="checkbox" id="health" value="health">Health :
+        <input type="checkbox" id="healthRead" value="healthRead">Read
+        <input type="checkbox" id="healthWrite" value="healthWrite">Write
+        <input type="checkbox" id="healthShare" value="healthShare">Share<br>
+        <input type="checkbox" id="finance" value="finance">Finance :
+        <input type="checkbox" id="financeRead" value="healthRead">Read
+        <input type="checkbox" id="financeWrite" value="healthWrite">Write
+        <input type="checkbox" id="financeShare" value="healthShare">Share<br>
+        <input type="checkbox" id="pii" value="pii">PII :
+        <input type="checkbox" id="piiRead" value="healthRead">Read
+        <input type="checkbox" id="piiWrite" value="healthWrite">Write
+        <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
+    <button onclick="buttonClicked()">Submit</button>
+</div>
+<div id="response"></div>
+<div id="responseText"></div>
 <noscript>Sorry, your browser does not support JavaScript!</noscript>
 
 </body>
