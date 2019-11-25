@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Retrieval</title>
+    <style>
+        body {
+            background-color: gainsboro;
+            margin: 20px;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    function getData(){
+        var dataRoute = document.querySelector('input[name="data"]:checked').value;
+        console.log(dataRoute);
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://localhost:8083/data/"+dataRoute, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+        xhr.onreadystatechange = () =>
+        {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                console.log("OK");
+                document.getElementById("response-data").textContent = xhr.responseText;
+            } else if (xhr.readyState === 4 && xhr.status === 401) {
+                document.getElementById("response-data").textContent = "Data could not be displayed"
+            }
+        }
+        xhr.send();
+    }
+</script>
+<div id="routes">
+    <br>
+    <h2>Select the data you want to see</h2><br><br>
+    <form id="dataForm" onsubmit='getData();'>
+    <input type="radio" name="data" value="health">Health <br>
+    <input type="radio" name="data" value="finance">Finance <br>
+    <input type="radio" name="data" value="pii">PII <br>
+    <input type="submit">
+    </form>
+</div>
+<div id="response-data"></div>
+<noscript>Sorry, your browser does not support JavaScript!</noscript>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package edu.cmu.consumerserver.routes;
 
 import edu.cmu.consumerserver.util.Connection;
+import edu.cmu.consumerserver.util.DataClass;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -18,9 +19,8 @@ import java.net.URL;
 
 @RestController
 public class Permissions {
-    private String producerHost = "http://localhost:8082";
     private Connection connection = new Connection();
-    private String consumerDID = "2YGJ67123ABC987H";
+    private DataClass dc = new DataClass();
 
     @RequestMapping(
             value = "/permissions",
@@ -30,11 +30,11 @@ public class Permissions {
     public void requestPermission(@RequestBody String permissions, HttpServletResponse response) throws ParseException {
         JSONParser parser = new JSONParser();
         JSONObject dataJSON = (JSONObject) parser.parse(permissions);
-        dataJSON.put("consumerDID", consumerDID);
+        dataJSON.put("consumerDID", dc.getConsumerDid());
         int status;
 
         try {
-            URL url = new URL(producerHost + "/permissions");
+            URL url = new URL(dc.getProducerHost() + "/permissions");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 

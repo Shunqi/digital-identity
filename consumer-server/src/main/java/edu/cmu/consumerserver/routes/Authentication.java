@@ -1,6 +1,7 @@
 package edu.cmu.consumerserver.routes;
 
 import edu.cmu.consumerserver.security.*;
+import edu.cmu.consumerserver.util.DataClass;
 import edu.cmu.consumerserver.service.Transaction;
 import edu.cmu.consumerserver.util.Connection;
 import org.json.simple.JSONObject;
@@ -22,18 +23,14 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.Random;
 
 @RestController
 public class Authentication {
     private AsymmetricKey asymmetricKey = new AsymmetricKey();
     Transaction transaction = new Transaction();
-    private String consumerDid = "2YGJ67123ABC987H";
-    private String producerHost = "http://localhost:8082";
     private Connection connection = new Connection();
-    public String authToken = "";
+    private DataClass dc = new DataClass();
 
     // RSA private keys for Consumer
     private static final String cn = "298870257550107893751445046581463981771828158714859729887101012502967312191860154" +
@@ -54,7 +51,7 @@ public class Authentication {
     public void setUpSymmetricKey(HttpServletResponse response) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, InvalidAlgorithmParameterException {
         StringBuilder result = new StringBuilder();
-        URL url = new URL(producerHost + "/authentication/key");
+        URL url = new URL(dc.getProducerHost() + "/authentication/key");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
         conn.setRequestProperty("Accept-Charset", "UTF-8");
@@ -75,6 +72,7 @@ public class Authentication {
     )
     public void challenge(@RequestBody String did, HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
         int status;
+        dc.setProducerDid(did);
         boolean serverResponse = false;
         try {
             String producerKeys = transaction.getKey(did);
@@ -89,12 +87,12 @@ public class Authentication {
             long challenge = random.nextLong();
 
             challengeMessage.put("challenge", challenge);
-            challengeMessage.put("DID", did);
+            challengeMessage.put("DID", dc.getConsumerDid());
 
             byte[] message = challengeMessage.toJSONString().getBytes(StandardCharsets.UTF_8);
             BigInteger secret = encryptData(message, pe, pn);
 
-            URL url = new URL(producerHost + "/authentication/challenge");
+            URL url = new URL(dc.getProducerHost() + "/authentication/challenge");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
@@ -115,7 +113,7 @@ public class Authentication {
 
                 if ((long) json.get("challenge") == (challenge + 1)) {
                     serverResponse = true;
-                    authToken = json.get("authToken").toString();
+                    dc.setAuthToken(json.get("authToken").toString());
                 }
             }
             conn.disconnect();
@@ -125,7 +123,6 @@ public class Authentication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         if (serverResponse)
             response.setStatus(200);
         else

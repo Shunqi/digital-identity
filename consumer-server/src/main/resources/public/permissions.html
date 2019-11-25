@@ -63,6 +63,7 @@
                 console.log("OK");
                 document.getElementById("response").textContent = "Permissions granted!";
                 document.getElementById("responseText").textContent = xhr.responseText;
+                document.getElementById("data-retrieval-button").style.display = "block";
             } else if (xhr.readyState === 4 && xhr.status === 401) {
                 console.log("Rejected");
                 document.getElementById("response").textContent = "Permissions denied!";
@@ -96,6 +97,7 @@
 </div>
 <div id="response"></div>
 <div id="responseText"></div>
+<button style="display:none" id="data-retrieval-button"><a href="getData.html">Get Data</a></button>
 <noscript>Sorry, your browser does not support JavaScript!</noscript>
 
 </body>

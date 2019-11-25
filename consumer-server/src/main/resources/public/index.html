@@ -13,7 +13,7 @@
 </head>
 <body>
 <script type="text/javascript">
-    function buttonClick() {
+    function clickedTest() {
         let xhr = new XMLHttpRequest();
         let did = document.getElementById("did").value;
         xhr.open("POST", "http://localhost:8083/authentication/did", true);
@@ -37,12 +37,11 @@
     <label>Enter the DID
         <input type="text" id="did" value=""/>
     </label><br>
-<button onclick="buttonClick()">Authenticate</button>
+<button onclick="clickedTest()">Authenticate</button>
 <br><br><br>
 <div id="response"></div>
 <br><br>
 <button style="display:none" id="permissionButton"><a href="permissions.html">Get Permissions</a></button>
-
 
 <noscript>Sorry, your browser does not support JavaScript!</noscript>
 </body>
