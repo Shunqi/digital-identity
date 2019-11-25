@@ -19,8 +19,8 @@ public class DataRetrieval {
     public void data(@PathVariable String dataRoute, HttpServletResponse response) {
         int status;
         try{
-           URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=" + dc.getAuthToken());
-           //URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=209522922f65e8e4125e5aec8fa078b9");
+          // URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=" + dc.getAuthToken());
+           URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=209522922f65e8e4125e5aec8fa078b9");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "text/plain");

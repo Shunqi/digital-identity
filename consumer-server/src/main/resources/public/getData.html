@@ -35,12 +35,11 @@
 <div id="routes">
     <br>
     <h2>Select the data you want to see</h2><br><br>
-    <form id="dataForm" onsubmit='getData();'>
+
     <input type="radio" name="data" value="health">Health <br>
     <input type="radio" name="data" value="finance">Finance <br>
     <input type="radio" name="data" value="pii">PII <br>
-    <input type="submit">
-    </form>
+        <button onclick="getData()">Submit</button>
 </div>
 <div id="response-data"></div>
 <noscript>Sorry, your browser does not support JavaScript!</noscript>
