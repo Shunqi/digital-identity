@@ -5,18 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ListView
+    <ExpandableListView
         android:id="@+id/permissions_listView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="31dp"
-        android:layout_marginTop="55dp"
-        android:layout_marginEnd="31dp"
-        android:layout_marginBottom="54dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="625dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/approve_button" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"></ExpandableListView>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="153dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="27dp"
+        android:text="Read  Write  Share"
+        android:textColor="#000D13"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/permissions_listView"
+        app:layout_constraintTop_toBottomOf="@+id/update_button" />
 
     <Button
         android:id="@+id/approve_button"
@@ -28,38 +34,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="189dp"
-        android:layout_height="37dp"
-        android:layout_marginTop="18dp"
-        android:text="Read   Write   Share"
-        android:textColor="#000D13"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/permissions_listView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/reject_button"
-        app:layout_constraintTop_toBottomOf="@+id/reject_button" />
-
     <Button
         android:id="@+id/reject_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
-        android:layout_marginEnd="136dp"
+        android:layout_marginEnd="16dp"
         android:text="Reject"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/approve_button"
+        app:layout_constraintEnd_toStartOf="@+id/update_button"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/update_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginEnd="32dp"
         android:text="Update"
         app:layout_constraintBaseline_toBaselineOf="@+id/reject_button"
-        app:layout_constraintStart_toEndOf="@+id/reject_button" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

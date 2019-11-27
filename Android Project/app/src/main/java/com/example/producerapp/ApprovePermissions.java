@@ -5,7 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
+import android.widget.Toast;
 import java.util.ArrayList;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
@@ -13,7 +14,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,8 +25,9 @@ import java.util.logging.Logger;
 
 public class ApprovePermissions extends Activity {
 
-    ArrayList<PermissionItem> items;
-    ListAdapter boxAdapter;
+    ArrayList<PermissionItem> expandableList;
+    HashMap<PermissionItem, List<ThirdPartyItem>> items;
+    PermissionExpandableAdapter boxAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +38,50 @@ public class ApprovePermissions extends Activity {
         Bundle extras = intent.getExtras();
         intent.removeExtra("permissions");
         System.out.println("Extras in Approve permissions: "+extras.getString("permissions"));
-        items = createArrayList(extras.getString("permissions"));
 
-        for(int i=0; i<items.size(); i++){
-            System.out.println(items.get(i).category+ items.get(i).readbox+items.get(i).writebox+items.get(i).sharebox);
-        }
+        items = createHashMap(extras.getString("permissions"));
+        expandableList = createList(items);
 
-        ListView lvMain = (ListView) findViewById(R.id.permissions_listView);
-        boxAdapter = new ListAdapter(this, items);
+        ExpandableListView lvMain = (ExpandableListView) findViewById(R.id.permissions_listView);
+        boxAdapter = new PermissionExpandableAdapter(this, expandableList,items);
         lvMain.setAdapter(boxAdapter);
 
+        lvMain.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                Toast.makeText(getApplicationContext(),
+                        expandableList.get(groupPosition) + " List Expanded.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        lvMain.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                Toast.makeText(getApplicationContext(),
+                        expandableList.get(groupPosition) + " List Collapsed.",
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        lvMain.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        expandableList.get(groupPosition)
+                                + " -> "
+                                + items.get(
+                                expandableList.get(groupPosition)).get(
+                                childPosition), Toast.LENGTH_SHORT
+                ).show();
+                return false;
+            }
+        });
         Button approveButton = (Button) findViewById(R.id.approve_button);
         approveButton.setVisibility(View.VISIBLE);
         approveButton.setOnClickListener(new View.OnClickListener() {
@@ -88,50 +127,6 @@ public class ApprovePermissions extends Activity {
         this.setIntent(intent);
     }
 
-    public ArrayList<PermissionItem> createArrayList(String jsonStr){
-        try {
-            JSONParser parser = new JSONParser() {};
-            JSONObject jsonObject = (JSONObject) parser.parse(jsonStr);
-            JSONArray jsonArray = (JSONArray) jsonObject.get("permissions");
-            System.out.println(jsonArray.toString());
-
-            ArrayList<PermissionItem> items = new ArrayList<>();
-
-            Iterator<JSONObject> iterator = jsonArray.iterator();
-            while(iterator.hasNext()) {
-                JSONObject current = iterator.next();
-                PermissionItem p = new PermissionItem((String) current.get("category"),
-                                (Boolean) current.get("read"),
-                                (Boolean) current.get("write"),
-                                (Boolean) current.get("shareable"));
-                items.add(p);
-
-            }
-            return items;
-        } catch (ParseException ex) {
-            Logger.getLogger(ApprovePermissions.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    public String createJSON(ListAdapter boxAdapter){
-
-        JSONObject jsonResponse = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-
-        for (PermissionItem p : boxAdapter.getBox()) {
-            JSONObject newEntry = new JSONObject();
-            newEntry.put("category", p.category);
-            newEntry.put("read", p.readbox);
-            newEntry.put("write", p.writebox);
-            newEntry.put("shareable", p.sharebox);
-            jsonArray.add(newEntry);
-        }
-        jsonResponse.put("permissions",jsonArray);
-
-        return jsonResponse.toJSONString();
-    }
-
     public void notifyServer(String result, String message){
         Random random = new Random();
         final String SENDER_ID = "923983506811"; //Sender ID from Firebase Console
@@ -145,6 +140,68 @@ public class ApprovePermissions extends Activity {
                 .addData("approved_permissions", result)
                 .build());
         System.out.println("Message sent to server");
+    }
+
+    public HashMap<PermissionItem, List<ThirdPartyItem>> createHashMap(String jsonStr){
+        try {
+            JSONParser parser = new JSONParser() {};
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonStr);
+            JSONArray jsonArray = (JSONArray) jsonObject.get("permissions");
+            System.out.println(jsonArray.toString());
+
+            HashMap<PermissionItem, List<ThirdPartyItem>> items = new HashMap<>();
+
+            Iterator<JSONObject> iterator = jsonArray.iterator();
+            while(iterator.hasNext()) {
+                JSONObject current = iterator.next();
+                PermissionItem p = new PermissionItem((String) current.get("category"),
+                        (Boolean) current.get("read"),
+                        (Boolean) current.get("write"),
+                        (Boolean) current.get("shareable"));
+
+                List<ThirdPartyItem> mylist = new ArrayList<>();
+                Random r = new Random();
+                int rint = 1+ r.nextInt(4);
+                for(int i=0; i<rint; i++){
+                    ThirdPartyItem t = new ThirdPartyItem(Integer.toString(i),false);
+                    mylist.add(t);
+                }
+                System.out.println("Thirdparty list size: " + mylist.size());
+                items.put(p, mylist);
+            }
+            return items;
+        } catch (ParseException ex) {
+            Logger.getLogger(ApprovePermissions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public ArrayList<PermissionItem> createList(HashMap<PermissionItem, List<ThirdPartyItem>> hashmap){
+        ArrayList<PermissionItem> box = new ArrayList<>();
+        for (Map.Entry<PermissionItem, List<ThirdPartyItem>> mapElement : hashmap.entrySet()) {
+            box.add(mapElement.getKey());
+        }
+        System.out.println("List from hashmap size:" + box.size());
+        return box;
+    }
+
+    public String createJSON(PermissionExpandableAdapter boxAdapter){
+
+        JSONObject jsonResponse = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+
+        //getBox returns arraylist for now, make changes later to add third parties to the json
+        for (PermissionItem p : boxAdapter.getBox()) {
+            JSONObject newEntry = new JSONObject();
+            newEntry.put("category", p.category);
+            newEntry.put("read", p.readbox);
+            newEntry.put("write", p.writebox);
+            newEntry.put("shareable", p.sharebox);
+            jsonArray.add(newEntry);
+        }
+        jsonResponse.put("permissions",jsonArray);
+
+        return jsonResponse.toJSONString();
     }
 
 }

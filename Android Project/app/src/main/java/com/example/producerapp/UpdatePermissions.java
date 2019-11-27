@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class UpdatePermissions extends Activity {
 
     ArrayList<PermissionItem> items;
-    ListAdapter boxAdapter;
+    PermissionListAdapter boxAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class UpdatePermissions extends Activity {
         }
 
         ListView lvMain = (ListView) findViewById(R.id.permissions_listView);
-        boxAdapter = new ListAdapter(this, items);
+        boxAdapter = new PermissionListAdapter(this, items);
         lvMain.setAdapter(boxAdapter);
 
         Button approveButton = (Button) findViewById(R.id.approve_button);
@@ -84,7 +84,7 @@ public class UpdatePermissions extends Activity {
         return null;
     }
 
-    public String createJSON(ListAdapter boxAdapter, String did){
+    public String createJSON(PermissionListAdapter boxAdapter, String did){
 
         JSONObject jsonResponse = new JSONObject();
         JSONArray jsonArray = new JSONArray();

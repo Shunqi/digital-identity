@@ -10,13 +10,13 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import java.util.ArrayList;
 
-public class ListAdapter extends BaseAdapter {
+public class PermissionListAdapter extends BaseAdapter {
 
     Context ctx;
     LayoutInflater lInflater;
     ArrayList<PermissionItem> objects;
 
-    ListAdapter(Context context, ArrayList<PermissionItem> items) {
+    PermissionListAdapter(Context context, ArrayList<PermissionItem> items) {
         ctx = context;
         objects = items;
         lInflater = (LayoutInflater) ctx
@@ -42,7 +42,7 @@ public class ListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (view == null) {
-            view = lInflater.inflate(R.layout.permission_list_item, parent, false);
+            view = lInflater.inflate(R.layout.permission_list_group_item, parent, false);
         }
 
         PermissionItem p = getPermissionItem(position);
