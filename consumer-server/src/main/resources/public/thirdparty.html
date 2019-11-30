@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Third Party Data Retrieval</title>
+    <style>
+        body {
+            background-color: lavenderblush;
+            margin: 20px;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    function getDataFromTP(){
+        var dataRoute = document.querySelector('input[name="data"]:checked').value;
+        var producerDid = document.getElementById("producerDid").value.trim();
+        var thirdPartyDid = document.getElementById("thirdPartyDid").value.trim();
+        console.log(dataRoute);
+        console.log(producerDid);
+        console.log(thirdPartyDid);
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://localhost:8083/thirdParty/"+dataRoute + "?thirdPartyDid=" + thirdPartyDid +"&producerDid=" + producerDid, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+        xhr.onreadystatechange = () =>
+        {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                console.log("OK");
+                document.getElementById("response-data").textContent = xhr.responseText;
+            } else if (xhr.readyState === 4 && xhr.status === 401) {
+                document.getElementById("response-data").textContent = "Data could not be displayed"
+            }
+        }
+        xhr.send();
+    }
+</script>
+<div id="routes">
+    <br>
+    <h2>Welcome!</h2><br>
+    <h2>Enter the below information</h2><br>
+    Third Party DID: <input type = "text" id = "thirdPartyDid"> <br>
+    Producer DID: <input type = "text" id = "producerDid"> <br>
+    <input type="radio" name="data" value="health">Health <br>
+    <input type="radio" name="data" value="finance">Finance <br>
+    <input type="radio" name="data" value="pii">PII <br>
+    <button onclick="getDataFromTP()">Submit</button>
+</div>
+<div id="response-data"></div>
+<noscript>Sorry, your browser does not support JavaScript!</noscript>
+</body>
+</html>

@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataClass {
-    private  String authToken;
-    private int count = 0;
-    private Map<String,String> data = new HashMap<>();
+    private static String authToken;
     private String producerDid;
 
     public String getConsumerDid(){
@@ -20,14 +18,6 @@ public class DataClass {
 
     public void setProducerDid(String producerDid) {
         this.producerDid = producerDid;
-    }
-
-    public String getData(String key) {
-        return data.get(key);
-    }
-
-    public void setData(String key, String value) {
-        data.put(key,value);
     }
 
     public String getProducerHost() {
