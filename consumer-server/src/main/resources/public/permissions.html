@@ -18,40 +18,35 @@
         };
         let health = document.getElementById("health").checked;
         if (health) {
-            let healthRead = document.getElementById("healthRead").checked;
-            let healthWrite = document.getElementById("healthWrite").checked;
-            let healthShare = document.getElementById("healthShare").checked;
             let healthJson = {
                 "category": "health",
-                "read": healthRead,
-                "write": healthWrite,
-                "shareable": healthShare
+                "read": document.getElementById("healthRead").checked,
+                "write": document.getElementById("healthWrite").checked,
+                "shareable": document.getElementById("healthShare").checked,
+                "thirdPartyDIDs" : document.getElementById("healthThirdParties").value
             };
+
             json.permissions.push(healthJson)
         }
         let finance = document.getElementById("finance").checked;
         if (finance) {
-            let financeRead = document.getElementById("financeRead").checked;
-            let financeWrite = document.getElementById("financeWrite").checked;
-            let financeShare = document.getElementById("financeShare").checked;
             let financeJson = {
                 "category": "finance",
-                "read": financeRead,
-                "write": financeWrite,
-                "shareable": financeShare
+                "read": document.getElementById("financeRead").checked,
+                "write": document.getElementById("financeWrite").checked,
+                "shareable": document.getElementById("financeShare").checked,
+                "thirdPartyDIDs" : document.getElementById("financeThirdParties").value
             };
             json.permissions.push(financeJson)
         }
         let pii = document.getElementById("pii").checked;
         if (pii) {
-            let piiRead = document.getElementById("piiRead").checked;
-            let piiWrite = document.getElementById("piiWrite").checked;
-            let piiShare = document.getElementById("piiShare").checked;
             let piiJson = {
                 "category": "PII",
-                "read": piiRead,
-                "write": piiWrite,
-                "shareable": piiShare
+                "read": document.getElementById("piiRead").checked,
+                "write": document.getElementById("piiWrite").checked,
+                "shareable": document.getElementById("piiShare").checked,
+                "thirdPartyDIDs" : document.getElementById("piiThirdParties").value
             };
             json.permissions.push(piiJson)
         }
@@ -73,6 +68,34 @@
         xhr.send(JSON.stringify(json));
     }
 
+    function healthShare () {
+        var checkBox = document.getElementById("healthShare");
+        // If the checkbox is checked, display the output text
+        if (checkBox.checked){
+            document.getElementById("third-party-health").style.display = "block";
+        } else {
+            document.getElementById("third-party-health").style.display = "none";
+        }
+    }
+    function financeShare() {
+        var checkBox = document.getElementById("financeShare");
+        // If the checkbox is checked, display the output text
+        if (checkBox.checked){
+            document.getElementById("third-party-finance").style.display = "block";
+        } else {
+            document.getElementById("third-party-finance").style.display = "none";
+        }
+    }
+    function piiShare () {
+        var checkBox = document.getElementById("piiShare");
+        // If the checkbox is checked, display the output text
+        if (checkBox.checked){
+            document.getElementById("third-party-pii").style.display = "block";
+        } else {
+            document.getElementById("third-party-pii").style.display = "none";
+        }
+    }
+
 </script>
 <h1 style="color:green; text-align: center">Permissions</h1>
 <h2>
@@ -81,18 +104,36 @@
 <p>Send Permissions</p>
 <br>
 <div id="selection">
-        <input type="checkbox" id="health" value="health">Health :
-        <input type="checkbox" id="healthRead" value="healthRead">Read
-        <input type="checkbox" id="healthWrite" value="healthWrite">Write
-        <input type="checkbox" id="healthShare" value="healthShare">Share<br>
-        <input type="checkbox" id="finance" value="finance">Finance :
-        <input type="checkbox" id="financeRead" value="healthRead">Read
-        <input type="checkbox" id="financeWrite" value="healthWrite">Write
-        <input type="checkbox" id="financeShare" value="healthShare">Share<br>
-        <input type="checkbox" id="pii" value="pii">PII :
-        <input type="checkbox" id="piiRead" value="healthRead">Read
-        <input type="checkbox" id="piiWrite" value="healthWrite">Write
-        <input type="checkbox" id="piiShare" value="healthShare">Share<br><br>
+    <input type="checkbox" id="health" value="health">Health : <br>
+    &emsp;&emsp;&emsp;&emsp;&ensp;<input type="checkbox" id="healthRead" value="healthRead">Read
+    <input type="checkbox" id="healthWrite" value="healthWrite">Write
+    <input type="checkbox" id="healthShare" value="healthShare" onclick="healthShare()">Share<br>
+    <div id="third-party-health" style="display: none">
+        &emsp;&emsp;&emsp;&emsp;&ensp;
+        Please enter Third Party DIDs if needed <input type="text"
+                                                       id="healthThirdParties"
+                                                       placeholder="Enter comma separated DIDs">
+        <br>
+    </div>
+    <input type="checkbox" id="finance" value="finance">Finance : <br>
+    &emsp;&emsp;&emsp;&emsp;&ensp;<input type="checkbox" id="financeRead" value="healthRead">Read
+    <input type="checkbox" id="financeWrite" value="financeWrite">Write
+    <input type="checkbox" id="financeShare" value="financeShare" onclick="financeShare()">Share<br>
+    <div id="third-party-finance" style="display: none">
+    &emsp;&emsp;&emsp;&emsp;&ensp;
+    Please enter Third Party DIDs if needed <input type="text" id="financeThirdParties"
+                                                   placeholder="Enter comma separated DIDs"><br>
+    </div>
+    <input type="checkbox" id="pii" value="pii">PII : <br>
+    &emsp;&emsp;&emsp;&emsp;&ensp;<input type="checkbox" id="piiRead" value="healthRead">Read
+    <input type="checkbox" id="piiWrite" value="piiWrite">Write
+    <input type="checkbox" id="piiShare" value="piiShare" onclick="piiShare()"> <br>
+    <div id="third-party-pii" style="display: none">
+    &emsp;&emsp;&emsp;&emsp;&ensp;
+    Please enter Third Party DIDs if needed<input type="text" id="piiThirdParties"
+                                                  placeholder="Enter comma separated DIDs"><br>
+    </div>
+    <br><br>
     <button onclick="buttonClicked()">Submit</button>
 </div>
 <div id="response"></div>
