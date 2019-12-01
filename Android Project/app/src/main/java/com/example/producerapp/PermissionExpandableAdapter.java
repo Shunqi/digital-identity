@@ -40,7 +40,7 @@ public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int listPosition, final int expandedListPosition,
+    public View getChildView(final int listPosition, final int expandedListPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
         if (convertView == null) {
@@ -53,11 +53,14 @@ public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
         View view = convertView;
         ((TextView) view.findViewById(R.id.third_party_textView)).setText(p.thirdPartyName);
 
-        CheckBox readbox = view.findViewById(R.id.third_party_checkBox);
-        readbox.setOnCheckedChangeListener(readmyCheckChangeList);  //MAKE CHANGES HERE------------------
+        final CheckBox readbox = view.findViewById(R.id.third_party_checkBox);
+        readbox.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                getThirdPartyItem(listPosition, expandedListPosition).allowedbox = isChecked;
+            }
+        });
         readbox.setTag(listPosition);
         readbox.setChecked(p.allowedbox);
-
         return convertView;
     }
 
@@ -161,10 +164,5 @@ public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
             getPermissionItem((Integer) buttonView.getTag()).sharebox = isChecked;
         }
     };
-    /*CompoundButton.OnCheckedChangeListener allowmyCheckChangList = new CompoundButton.OnCheckedChangeListener() {
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            getThirdPartyItem((Integer) buttonView.getTag()).allowedbox = isChecked;
 
-        }
-    };*/
 }
