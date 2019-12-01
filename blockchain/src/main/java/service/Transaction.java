@@ -16,7 +16,7 @@ import java.math.BigInteger;
 
 public class Transaction {
 
-    private final static String PRIVATE_KEY = "d55bb34f43683cc93dec1ef57605988e07d8f913626c9ce61a26b5b10d628b1a";
+    private final static String PRIVATE_KEY = "2cda53167fd7ea1947bf578bcac6a78330e75275c6af090ecef149c98b0356d4";
 
     private final static BigInteger GAS_LIMIT = BigInteger.valueOf(6721975L);
     private final static BigInteger GAS_PRICE = BigInteger.valueOf(20000000000L);
