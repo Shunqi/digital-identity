@@ -18,7 +18,7 @@ public class Transaction {
     private final static BigInteger GAS_LIMIT = BigInteger.valueOf(6721975L);
     private final static BigInteger GAS_PRICE = BigInteger.valueOf(20000000000L);
 
-    private final static String deployedAddress = "0xb7eca93be41d3be365e50f87c5acdede372e03e6";
+    private final static String deployedAddress = "0xddea124794659ce557c53f1760e8923a11c4b50e";
 
     PublicKeys publicKeys;
 
