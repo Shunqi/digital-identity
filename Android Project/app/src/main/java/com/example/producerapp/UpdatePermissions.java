@@ -15,14 +15,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UpdatePermissions extends Activity {
-
-    /*ArrayList<PermissionItem> items;
-    PermissionListAdapter boxAdapter;*/
 
     ArrayList<PermissionItem> expandableList;
     HashMap<PermissionItem, List<ThirdPartyItem>> items;
@@ -64,32 +60,6 @@ public class UpdatePermissions extends Activity {
 
     }
 
-    public ArrayList<PermissionItem> createArrayList(String jsonStr){
-        try {
-            JSONParser parser = new JSONParser() {};
-            JSONObject jsonObject = (JSONObject) parser.parse(jsonStr);
-            JSONArray jsonArray = (JSONArray) jsonObject.get("permissions");
-            System.out.println(jsonArray.toString());
-
-            ArrayList<PermissionItem> items = new ArrayList<>();
-
-            Iterator<JSONObject> iterator = jsonArray.iterator();
-            while(iterator.hasNext()) {
-                JSONObject current = iterator.next();
-                PermissionItem p = new PermissionItem((String) current.get("category"),
-                        (Boolean) current.get("read"),
-                        (Boolean) current.get("write"),
-                        (Boolean) current.get("shareable"));
-                items.add(p);
-
-            }
-            return items;
-        } catch (ParseException ex) {
-            Logger.getLogger(ApprovePermissions.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
     public HashMap<PermissionItem, List<ThirdPartyItem>> createHashMap(String jsonStr){
         try {
             JSONParser parser = new JSONParser() {};
@@ -108,12 +78,15 @@ public class UpdatePermissions extends Activity {
                         (Boolean) current.get("shareable"));
 
                 List<ThirdPartyItem> mylist = new ArrayList<>();
-                Random r = new Random();
-                int rint = 1+ r.nextInt(4);
-                for(int i=0; i<rint; i++){
-                    ThirdPartyItem t = new ThirdPartyItem(Integer.toString(i),false);
-                    mylist.add(t);
-                }
+                if(current.get("thirdPartyDIDs") != null)
+                    if( !((String)current.get("thirdPartyDIDs")).equalsIgnoreCase("")){
+                        String[] thirdpartyArr = ((String) current.get("thirdPartyDIDs")).split(",");
+
+                        for(int i=0; i<thirdpartyArr.length; i++){
+                            ThirdPartyItem t = new ThirdPartyItem(thirdpartyArr[i],true);
+                            mylist.add(t);
+                        }
+                    }
                 System.out.println("Thirdparty list size: " + mylist.size());
                 items.put(p, mylist);
             }
@@ -133,38 +106,28 @@ public class UpdatePermissions extends Activity {
         return box;
     }
 
-    public String createJSON2(PermissionListAdapter boxAdapter, String did){
-
-        JSONObject jsonResponse = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-
-        jsonResponse.put("consumerDID", did);
-        for (PermissionItem p : boxAdapter.getBox()) {
-            JSONObject newEntry = new JSONObject();
-            newEntry.put("category", p.category);
-            newEntry.put("read", p.readbox);
-            newEntry.put("write", p.writebox);
-            newEntry.put("shareable", p.sharebox);
-            jsonArray.add(newEntry);
-        }
-        jsonResponse.put("permissions",jsonArray);
-
-        return jsonResponse.toJSONString();
-    }
-
     public String createJSON(PermissionExpandableAdapter boxAdapter, String did){
 
         JSONObject jsonResponse = new JSONObject();
         JSONArray jsonArray = new JSONArray();
-
         jsonResponse.put("consumerDID", did);
-        //getBox returns arraylist for now, make changes later to add third parties to the json
-        for (PermissionItem p : boxAdapter.getBox()) {
+
+        HashMap<PermissionItem, List<ThirdPartyItem>> myMap = boxAdapter.getBox();
+
+        for (Map.Entry<PermissionItem, List<ThirdPartyItem>> p : myMap.entrySet()) {
             JSONObject newEntry = new JSONObject();
-            newEntry.put("category", p.category);
-            newEntry.put("read", p.readbox);
-            newEntry.put("write", p.writebox);
-            newEntry.put("shareable", p.sharebox);
+            newEntry.put("category", p.getKey().category);
+            newEntry.put("read", p.getKey().readbox);
+            newEntry.put("write", p.getKey().writebox);
+            newEntry.put("shareable", p.getKey().sharebox);
+
+            ArrayList<ThirdPartyItem> arr = (ArrayList<ThirdPartyItem>) p.getValue();
+            String dids = "";
+            for(int i=0; i<arr.size(); i++)
+                if(arr.get(i).allowedbox)
+                    dids += arr.get(i).thirdPartyName+",";
+
+            newEntry.put("thirdPartyDIDs", dids);
             jsonArray.add(newEntry);
         }
         jsonResponse.put("permissions",jsonArray);

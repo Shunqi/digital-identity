@@ -8,7 +8,7 @@
     <ExpandableListView
         android:id="@+id/permissions_listView"
         android:layout_width="0dp"
-        android:layout_height="625dp"
+        android:layout_height="550dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"></ExpandableListView>

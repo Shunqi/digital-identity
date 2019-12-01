@@ -50,9 +50,7 @@ public class ApprovePermissions extends Activity {
 
             @Override
             public void onGroupExpand(int groupPosition) {
-                Toast.makeText(getApplicationContext(),
-                        expandableList.get(groupPosition) + " List Expanded.",
-                        Toast.LENGTH_SHORT).show();
+                System.out.println(expandableList.get(groupPosition) + " List Expanded.");
             }
         });
 
@@ -60,9 +58,7 @@ public class ApprovePermissions extends Activity {
 
             @Override
             public void onGroupCollapse(int groupPosition) {
-                Toast.makeText(getApplicationContext(),
-                        expandableList.get(groupPosition) + " List Collapsed.",
-                        Toast.LENGTH_SHORT).show();
+                System.out.println(expandableList.get(groupPosition) + " List Collapsed.");
 
             }
         });
@@ -160,11 +156,14 @@ public class ApprovePermissions extends Activity {
                         (Boolean) current.get("shareable"));
 
                 List<ThirdPartyItem> mylist = new ArrayList<>();
-                Random r = new Random();
-                int rint = 1+ r.nextInt(4);
-                for(int i=0; i<rint; i++){
-                    ThirdPartyItem t = new ThirdPartyItem(Integer.toString(i),false);
-                    mylist.add(t);
+                if(current.get("thirdPartyDIDs") != null)
+                if( !((String)current.get("thirdPartyDIDs")).equalsIgnoreCase("")){
+                    String[] thirdpartyArr = ((String) current.get("thirdPartyDIDs")).split(",");
+
+                    for(int i=0; i<thirdpartyArr.length; i++){
+                        ThirdPartyItem t = new ThirdPartyItem(thirdpartyArr[i],true);
+                        mylist.add(t);
+                    }
                 }
                 System.out.println("Thirdparty list size: " + mylist.size());
                 items.put(p, mylist);
@@ -191,12 +190,22 @@ public class ApprovePermissions extends Activity {
         JSONArray jsonArray = new JSONArray();
 
         //getBox returns arraylist for now, make changes later to add third parties to the json
-        for (PermissionItem p : boxAdapter.getBox()) {
+        HashMap<PermissionItem, List<ThirdPartyItem>> myMap = boxAdapter.getBox();
+        //for (PermissionItem p : boxAdapter.getBox()) {
+        for (Map.Entry<PermissionItem, List<ThirdPartyItem>> p : myMap.entrySet()) {
             JSONObject newEntry = new JSONObject();
-            newEntry.put("category", p.category);
-            newEntry.put("read", p.readbox);
-            newEntry.put("write", p.writebox);
-            newEntry.put("shareable", p.sharebox);
+            newEntry.put("category", p.getKey().category);
+            newEntry.put("read", p.getKey().readbox);
+            newEntry.put("write", p.getKey().writebox);
+            newEntry.put("shareable", p.getKey().sharebox);
+
+            ArrayList<ThirdPartyItem> arr = (ArrayList<ThirdPartyItem>) p.getValue();
+            String dids = "";
+            for(int i=0; i<arr.size(); i++)
+                if(arr.get(i).allowedbox)
+                    dids += arr.get(i).thirdPartyName+",";
+
+            newEntry.put("thirdPartyDIDs", dids);
             jsonArray.add(newEntry);
         }
         jsonResponse.put("permissions",jsonArray);

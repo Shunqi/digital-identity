@@ -9,10 +9,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
 
@@ -25,7 +23,6 @@ public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
         this.context = context;
         this.expandableListTitle = expandableListTitle;
         this.expandableListDetail = expandableListDetail;
-        System.out.println();
     }
 
     @Override
@@ -53,14 +50,14 @@ public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
         View view = convertView;
         ((TextView) view.findViewById(R.id.third_party_textView)).setText(p.thirdPartyName);
 
-        final CheckBox readbox = view.findViewById(R.id.third_party_checkBox);
-        readbox.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener() {
+        CheckBox allowedbox = view.findViewById(R.id.third_party_checkBox);
+        allowedbox.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 getThirdPartyItem(listPosition, expandedListPosition).allowedbox = isChecked;
             }
         });
-        readbox.setTag(listPosition);
-        readbox.setChecked(p.allowedbox);
+        allowedbox.setTag(listPosition);
+        allowedbox.setChecked(p.allowedbox);
         return convertView;
     }
 
@@ -139,12 +136,8 @@ public class PermissionExpandableAdapter extends BaseExpandableListAdapter {
 
     ThirdPartyItem getThirdPartyItem(int listPosition, int expandedListPosition){return (ThirdPartyItem) getChild(listPosition, expandedListPosition);}
 
-    ArrayList<PermissionItem> getBox() {
-        ArrayList<PermissionItem> box = new ArrayList<>();
-        for (Map.Entry<PermissionItem, List<ThirdPartyItem>> mapElement : expandableListDetail.entrySet()) {
-            box.add(mapElement.getKey());
-        }
-        return box;
+    HashMap<PermissionItem, List<ThirdPartyItem>> getBox() {
+        return this.expandableListDetail;
     }
 
     CompoundButton.OnCheckedChangeListener readmyCheckChangeList = new CompoundButton.OnCheckedChangeListener() {

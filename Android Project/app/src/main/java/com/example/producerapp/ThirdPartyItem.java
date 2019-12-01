@@ -6,7 +6,7 @@ public class ThirdPartyItem {
 
     ThirdPartyItem(String thirdPartyName, boolean allowed){
         this.thirdPartyName = thirdPartyName;
-        this.allowedbox = allowedbox;
+        this.allowedbox = allowed;
     }
 
 }
