@@ -49,7 +49,7 @@ public class DataRetrieval {
             return;
         }
 
-        if(permissionSet.getThirdPartyDIDs() != null && !permissionSet.isThirdParty(thirdPartyDid.trim())){
+        if(!permissionSet.getThirdPartyDIDs().equals("") && !permissionSet.isThirdParty(thirdPartyDid.trim())){
             response.setStatus(401);
             return;
         }
