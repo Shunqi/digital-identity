@@ -42,20 +42,20 @@ public class DataRetrieval {
     @GetMapping("/thirdParty/{dataRoute}")
     public void thirdPartyGet(@PathVariable String dataRoute, @RequestParam(name = "thirdPartyDid") String thirdPartyDid, @RequestParam(name = "producerDid") String producerDid, HttpServletResponse response) {
         Permission permission = permissionRepository.findByProducerDIDAndConsumerDID(producerDid, dc.getConsumerDid());
-
         PermissionSet permissionSet = permission.getPermission(dataRoute);
+
         if (permissionSet == null || !permissionSet.isSharable()) {
             response.setStatus(401);
             return;
         }
 
-//        if(permissionSet.getThirdParty() != null && !permissionSet.isThirdParty(thirdPartyDid.trim())){
-//            response.setStatus(401);
-//            return;
-//        }
+        if(!permissionSet.getThirdPartyDIDs().equals("") && !permissionSet.isThirdParty(thirdPartyDid.trim())){
+            response.setStatus(401);
+            return;
+        }
         try{
-            URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=" + dc.getAuthToken());
-            //URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=209522922f65e8e4125e5aec8fa078b9");
+           // URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=" + dc.getAuthToken());
+           URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=209522922f65e8e4125e5aec8fa078b9");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             connectToProducer(conn, response);
         }catch(IOException e){

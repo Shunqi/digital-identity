@@ -75,7 +75,14 @@ public class Permissions {
                         ccsClient.permissionSet = false;
 
                         List<PermissionSet> permissionSets = (List<PermissionSet>) ccsClient.approvedPermissions.get("permissions");
-                        permissionObject.save(new Permission(producerDID, consumerDID, permissionSets));
+                        Permission permission = permissionObject.findByConsumerDID(consumerDID);
+                        if(permission == null) {
+                            permissionObject.save(new Permission(producerDID, consumerDID, permissionSets));
+                        } else {
+                            permission.setPermissions(permissionSets);
+                            permissionObject.save(permission);
+                        }
+
                         logger.log(consumerDID,"Permissions", "/permissions", "Accepted", "Permission to read/write data granted");
 
                         response.setStatus(200);
