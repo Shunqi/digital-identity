@@ -10,7 +10,7 @@ public class PermissionSet {
     private Boolean read;
     private Boolean write;
     private Boolean shareable;
-  //  private List<String> thirdParty;
+    private List<String> thirdParty;
 
     @Override
     public String toString() {
@@ -19,7 +19,7 @@ public class PermissionSet {
         data.put("read", this.read);
         data.put("write", this.write);
         data.put("shareable", this.shareable);
-      //  data.put("thirdParty", this.thirdParty);
+        data.put("thirdParty", this.thirdParty);
 
         return data.toJSONString();
     }
@@ -38,11 +38,11 @@ public class PermissionSet {
 
     public  boolean isSharable(){return this.shareable;}
 
-//    public List<String> getThirdParty(){return this.thirdParty;}
-//
-//    public boolean isThirdParty(String did){
-//        return this.thirdParty.contains(did);
-//    }
+    public List<String> getThirdParty(){return this.thirdParty;}
+
+    public boolean isThirdParty(String did){
+        return this.thirdParty.contains(did);
+    }
 
 
 }

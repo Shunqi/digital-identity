@@ -49,10 +49,10 @@ public class DataRetrieval {
             return;
         }
 
-//        if(permissionSet.getThirdParty() != null && !permissionSet.isThirdParty(thirdPartyDid.trim())){
-//            response.setStatus(401);
-//            return;
-//        }
+        if(permissionSet.getThirdParty() != null && !permissionSet.isThirdParty(thirdPartyDid.trim())){
+            response.setStatus(401);
+            return;
+        }
         try{
             URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=" + dc.getAuthToken());
             //URL url = new URL(dc.getProducerHost() + "/data/" + dataRoute + "?authtoken=209522922f65e8e4125e5aec8fa078b9");
