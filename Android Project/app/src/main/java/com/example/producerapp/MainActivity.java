@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 TextInputEditText textInputLayout = (TextInputEditText) findViewById(R.id.textInput);
                 String did = textInputLayout.getText().toString();
                 textInputLayout.getText().clear();
+                System.out.println("DID: "+did);
                 getPermissionSet(did);
             }
         });
@@ -57,11 +58,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void getPermissionSet(String did) {
         PermissionsAsync pa = new PermissionsAsync();
+        System.out.println("GetPermissionSet did: "+did);
         pa.getLogs(did, this);
     }
 
     public void updatePermissions(String jsonString, String did){
-        System.out.println("MainActivity jsonString: "+jsonString);
+        System.out.println("MainActivity jsonString: "+ jsonString);
         Intent i = new Intent(MainActivity.this, UpdatePermissions.class);
         i.putExtra("jsonString", jsonString);
         i.putExtra("did", did);
