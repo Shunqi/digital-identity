@@ -13,12 +13,12 @@ import java.math.BigInteger;
 
 public class Transaction {
 
-    private final static String PRIVATE_KEY = "54c1bf5ad1242e728a89ff24e6b9253bc47acd9c18db06531bed3ccc99bf968c";
+    private final static String PRIVATE_KEY = "d55bb34f43683cc93dec1ef57605988e07d8f913626c9ce61a26b5b10d628b1a";
 
     private final static BigInteger GAS_LIMIT = BigInteger.valueOf(6721975L);
     private final static BigInteger GAS_PRICE = BigInteger.valueOf(20000000000L);
 
-    private final static String deployedAddress = "0xfdc297c621043cac7ff79e6684d4ed5f066e87b9";
+    private final static String deployedAddress = "0xb7eca93be41d3be365e50f87c5acdede372e03e6";
 
     PublicKeys publicKeys;
 
