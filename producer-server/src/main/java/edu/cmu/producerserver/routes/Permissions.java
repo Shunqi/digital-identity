@@ -71,12 +71,15 @@ public class Permissions {
 
             while(true) {
                 if(ccsClient.permissionSet) {
+                    System.out.println("CCSClient: " + ccsClient.permissionSet);
                     if(ccsClient.appPermissionResponse.equals("YES")) {
                         ccsClient.permissionSet = false;
 
                         List<PermissionSet> permissionSets = (List<PermissionSet>) ccsClient.approvedPermissions.get("permissions");
+                        System.out.println("Set: " + permissionSets);
                         Permission permission = permissionObject.findByConsumerDID(consumerDID);
                         if(permission == null) {
+                            System.out.println("Permission: " + permission);
                             permissionObject.save(new Permission(producerDID, consumerDID, permissionSets));
                         } else {
                             permission.setPermissions(permissionSets);
@@ -111,7 +114,11 @@ public class Permissions {
     public void getPermissions(@RequestParam String did,  HttpServletResponse response) throws IOException {
         response.setStatus(200);
         OutputStream out = response.getOutputStream();
-        out.write(permissionObject.findByConsumerDID(did).toString().getBytes());
+        if(did == null) {
+            out.write(new String("Please enter DID'").getBytes());
+        } else {
+            out.write(permissionObject.findByConsumerDID(did).toString().getBytes());
+        }
         out.close();
     }
 

@@ -1,16 +1,11 @@
 package edu.cmu.producerserver.model;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.json.simple.JSONObject;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Document(collection = "logs")
 public class Log {
@@ -18,7 +13,6 @@ public class Log {
     @Id
     private String _id;
 
-    @DateTimeFormat(iso = ISO.DATE_TIME)
     private String timestamp;
     private String consumerDID;
     private String type;
@@ -40,10 +34,9 @@ public class Log {
     }
 
     public String getDate() {
-        Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        String strDate = dateFormat.format(date);
-        return strDate;
+        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+        Date date = new Date();
+        return formatter.format(date);
     }
 
     @Override
