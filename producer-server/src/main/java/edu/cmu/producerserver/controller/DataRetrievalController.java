@@ -7,11 +7,13 @@ import edu.cmu.producerserver.repository.ConsumerDataRepository;
 import edu.cmu.producerserver.repository.PermissionRepository;
 import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.service.RedisService;
+import edu.cmu.producerserver.utils.Logger;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,25 +33,36 @@ public class DataRetrievalController {
     private final RedisService redisClient;
     private final PermissionRepository permissionRepository;
     private static AsymmetricKey asymmetricKey;
+    private final Logger logger;
 
     public DataRetrievalController(ConsumerDataRepository consumerDataRepository, RedisService redisClient,
-                                   PermissionRepository permissionRepository) {
+                                   PermissionRepository permissionRepository, Logger logger) {
         this.consumerDataRepository = consumerDataRepository;
         this.redisClient = redisClient;
         this.permissionRepository = permissionRepository;
         asymmetricKey = new AsymmetricKey();
+        this.logger = logger;
     }
 
     @ResponseBody
     @GetMapping("/{category}")
     String getData(@PathVariable String category, @RequestParam(name = "authtoken") String authtoken,
-                   HttpServletResponse response) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+                   @RequestParam(name = "thirdpartydid") String thirdPartyDid,
+                   HttpServletResponse response, HttpServletRequest request) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String data = null;
+
+        String logType;
+        if (thirdPartyDid == null) {
+            logType = "Data Retrieval";
+        } else {
+            logType = "Third Party Data Retrieval";
+        }
 
         // check authtoken
         String consumerDID = redisClient.getValue(authtoken);
         if (consumerDID == null) {
             response.setStatus(401);
+            logger.log(null, logType, request.getRequestURI(), "Rejected", "Invalid authtoken");
             return "{\"errMsg\": \"Invalid authtoken\"}";
         }
 
@@ -57,6 +70,7 @@ public class DataRetrievalController {
         Permission permission = permissionRepository.findByConsumerDID(consumerDID);
         if (permission == null) {
             response.setStatus(401);
+            logger.log(consumerDID, logType, request.getRequestURI(), "Rejected", "Unauthorized");
             return "{\"errMsg\": \"Unauthorized\"}";
         }
 
@@ -64,6 +78,7 @@ public class DataRetrievalController {
         PermissionSet permissionSet = permission.getPermission(category);
         if (permissionSet == null || !permissionSet.isReadable()) {
             response.setStatus(401);
+            logger.log(consumerDID, logType, request.getRequestURI(), "Rejected", "Unauthorized");
             return "{\"errMsg\": \"Unauthorized\"}";
         }
 
@@ -72,12 +87,14 @@ public class DataRetrievalController {
             data = consumerData.getData();
         }
 
+        // TODO: add secure token
         if (data != null) {
             PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/producer/private.der");
             byte[] secret = asymmetricKey.decrypt(privateKey, Base64.getDecoder().decode(data.getBytes()));
             data = new String(secret, StandardCharsets.UTF_8);
         }
 
+        logger.log(consumerDID, logType, request.getRequestURI(), "Accepted", "Data retrieved.");
         return data;
     }
 
