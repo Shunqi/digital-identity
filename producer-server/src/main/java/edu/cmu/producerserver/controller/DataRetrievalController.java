@@ -8,6 +8,7 @@ import edu.cmu.producerserver.repository.PermissionRepository;
 import edu.cmu.producerserver.security.AsymmetricKey;
 import edu.cmu.producerserver.service.RedisService;
 import edu.cmu.producerserver.utils.Logger;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
@@ -87,15 +88,24 @@ public class DataRetrievalController {
             data = consumerData.getData();
         }
 
-        // TODO: add secure token
+        JSONObject result = new JSONObject();
         if (data != null) {
             PrivateKey privateKey = asymmetricKey.readPrivateKey("src/main/keys/producer/private.der");
             byte[] secret = asymmetricKey.decrypt(privateKey, Base64.getDecoder().decode(data.getBytes()));
             data = new String(secret, StandardCharsets.UTF_8);
+
+            PublicKey publicKey = asymmetricKey.readPublicKey("src/main/keys/producer/public.der");
+            byte[] tokenByte = asymmetricKey.encrypt(publicKey, data.getBytes(StandardCharsets.UTF_8));
+            String encryptedData = Base64.getEncoder().encodeToString(tokenByte);
+            data = data.replaceAll("=", ":");
+
+            JSONObject dataJSON = new JSONObject(data);
+            result.put("secureToken", encryptedData);
+            result.put("data", dataJSON);
         }
 
         logger.log(consumerDID, logType, request.getRequestURI(), "Accepted", "Data retrieved.");
-        return data;
+        return result.toString();
     }
 
     @ResponseBody
