@@ -1,9 +1,9 @@
 package edu.cmu.producerserver.controller;
 
-import edu.cmu.producerserver.model.ConsumerData;
+import edu.cmu.producerserver.model.ProducerData;
 import edu.cmu.producerserver.model.Permission;
 import edu.cmu.producerserver.model.PermissionSet;
-import edu.cmu.producerserver.repository.ConsumerDataRepository;
+import edu.cmu.producerserver.repository.ProducerDataRepository;
 import edu.cmu.producerserver.repository.PermissionRepository;
 import edu.cmu.producerserver.service.RedisService;
 import edu.cmu.producerserver.service.Transaction;
@@ -21,15 +21,15 @@ import java.util.Map;
 @RequestMapping("/data")
 public class DataRetrievalController {
 
-    private final ConsumerDataRepository consumerDataRepository;
+    private final ProducerDataRepository producerDataRepository;
     private final RedisService redisClient;
     private final PermissionRepository permissionRepository;
     private final Logger logger;
     private Transaction transaction;
 
-    public DataRetrievalController(ConsumerDataRepository consumerDataRepository, RedisService redisClient,
+    public DataRetrievalController(ProducerDataRepository producerDataRepository, RedisService redisClient,
                                    PermissionRepository permissionRepository, Logger logger) throws Exception {
-        this.consumerDataRepository = consumerDataRepository;
+        this.producerDataRepository = producerDataRepository;
         this.redisClient = redisClient;
         this.permissionRepository = permissionRepository;
         this.logger = logger;
@@ -86,9 +86,9 @@ public class DataRetrievalController {
             return "{\"errMsg\": \"Unauthorized\"}";
         }
 
-        ConsumerData consumerData = consumerDataRepository.findByType(category);
-        if (consumerData != null) {
-            data = consumerData.getData();
+        ProducerData producerData = producerDataRepository.findByType(category);
+        if (producerData != null) {
+            data = producerData.getData();
         }
 
 
@@ -143,15 +143,15 @@ public class DataRetrievalController {
 
         BigInteger encryptedData = encrypt(data.toString().getBytes());
 
-        ConsumerData consumerData = consumerDataRepository.findByType(category);
-        if (consumerData == null) {
+        ProducerData producerData = producerDataRepository.findByType(category);
+        if (producerData == null) {
             // create new data
-            consumerData = new ConsumerData(category, encryptedData.toString());
+            producerData = new ProducerData(category, encryptedData.toString());
         } else {
             // update data
-            consumerData.setData(encryptedData.toString());
+            producerData.setData(encryptedData.toString());
         }
-        consumerDataRepository.save(consumerData);
+        producerDataRepository.save(producerData);
 
         return "{\"status\": \"Success\"}";
     }
