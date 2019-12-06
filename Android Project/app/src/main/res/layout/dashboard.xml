@@ -7,34 +7,31 @@
 
     <TextView
         android:id="@+id/dashboard_textview"
-        android:layout_width="339dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="110dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="99dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="21dp"
         android:text="Logs:"
+        android:textColor="#361E61"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/logs_listView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/logs_listView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="31dp"
-        android:layout_marginTop="55dp"
-        android:layout_marginEnd="31dp"
-        android:layout_marginBottom="54dp"
+        android:layout_width="358dp"
+        android:layout_height="531dp"
+        android:layout_marginStart="29dp"
+        android:layout_marginEnd="29dp"
+        android:layout_marginBottom="51dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dashboard_textview" />
 
-    <ImageButton
-        android:id="@+id/dashboard_back_button"
-        android:layout_width="78dp"
-        android:layout_height="58dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/dashboard_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="?attr/homeAsUpIndicator" />
+
 </android.support.constraint.ConstraintLayout>

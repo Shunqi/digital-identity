@@ -3,6 +3,9 @@ package com.example.producerapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -19,7 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class Dashboard extends Activity {
+public class Dashboard extends AppCompatActivity {
 
     ArrayList<LogItem> items;
     LogsListAdapter boxAdapter;
@@ -29,19 +32,14 @@ public class Dashboard extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         System.out.println(extras);
-
-        ImageButton back_button = (ImageButton) findViewById(R.id.dashboard_back_button);
-        back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Dashboard.this, MainActivity.class);
-                startActivity(i);
-                finish();
-            }
-        });
 
         items = createArrayList(extras.getString("results"));
 
@@ -60,6 +58,16 @@ public class Dashboard extends Activity {
         }
         return items;
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            Intent i = new Intent(Dashboard.this, MainActivity.class);
+            startActivity(i);
+            finish();
+        }
 
+        return super.onOptionsItemSelected(item);
+    }
 
 }
