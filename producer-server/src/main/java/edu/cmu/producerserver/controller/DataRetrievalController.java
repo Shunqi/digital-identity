@@ -48,7 +48,7 @@ public class DataRetrievalController {
     @ResponseBody
     @GetMapping("/{category}")
     String getData(@PathVariable String category, @RequestParam(name = "authtoken") String authtoken,
-                   @RequestParam(name = "thirdpartydid") String thirdPartyDid,
+                   @RequestParam(name = "thirdpartydid", required = false) String thirdPartyDid,
                    HttpServletResponse response, HttpServletRequest request) throws Exception {
         String data = null;
 
