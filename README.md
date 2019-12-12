@@ -8,7 +8,7 @@ The project has several components -
 - Blockchain
 
 To run the Android app -  
-1. Navigate to **https://firebase.google.com/docs/android/setup#console
+1. Navigate to https://firebase.google.com/docs/android/setup#console
 2. Follow the steps prescribed under the section "Option1: Add Firebase using the Firebase console"
 3. In step 2, use the Android package name as "com.example.producerapp." These steps are required to acquire the "google-services.json" file for your device. 
 4. Navigate to your Firebase console and click on your project. Click on the settings icon, select "Project settings" and navigate to the "Cloud Messaging" tab.
