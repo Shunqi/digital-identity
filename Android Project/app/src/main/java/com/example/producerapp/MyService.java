@@ -28,7 +28,7 @@ public class MyService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
+        getToken();
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         String messageID = remoteMessage.getMessageId();
         Log.d(TAG, "Message ID: " + remoteMessage.getMessageId());
