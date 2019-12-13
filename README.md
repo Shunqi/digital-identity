@@ -30,22 +30,20 @@ To run the Android app -
  
 
 To run the servers - 
-<--------MAKE CHANGES HERE ---------------------->
-1. Go to **src->main->java->edu.cmu.consumerserver-> .......** and paste the value of "Sender ID" from the previous step in the "projectId" field and the "Server key" in the "apiKey" field.  
-2. Paste the token value in the field "Device_ID." 
-
-
+1. Go to **src->main->java->edu.cmu.producerserver->utils->MessagingCredentials** and paste the value of "Sender ID" from the previous step in the "projectID" field and the "Server key" in the "apiKey" field.  
+2. Paste the token value in the field "senderRegistrationID" .
 3. Download and Install Ganache GUI from - https://www.trufflesuite.com/ganache
-4. Open Ganache, Settings, and make sure that the Server Port number is 8545
-5. On the Accounts page, you will have 10 accounts and their corresponding addresses.
-6. Click on the "key" icon of one of the accounts and copy the Private key value to PRIVATE_KEY variable in the Transaction class of the **blockchain** folder, **src->main->java->edu.cmu.producerserver->service Transaction** class, and **src->main->java->edu.cmu.consumerserver->service Transaction** class.
-7. Run the **Blockchain** class in the **blockchain** folder.
-8. There will be an address printed on the console. This is the address where the Contract is deployed. This contract holds a map of the ID and the public keys for the producer and consumer that we have defined for the purpose of demonstration of this prototype.
-9. Copy the address and paste it to the **deployedAddress** variable in **src->main->java->edu.cmu.producerserver->service Transaction** and **src->main->java->edu.cmu.consumerserver->service Transaction** class.
-10. Run the Producer server and the Consumer server 
-11. Go to the command line and make a note of the producer server's IP address
-12. In the android project, go to **app->src->main->java->com->example->producerapp->ServerDetails**. Set urlString to "http://<producer server's IP address>:8082". Run the app again.
-13. Run the different stages of the application.
+4. Open Ganache, Settings, and make sure that the Server Port number is 8545.
+5. Create a save a Workspace using a name of your choice.
+6. On the Accounts page, you will have 10 accounts and their corresponding addresses.
+7. Click on the "key" icon of one of the accounts and copy the Private key value to PRIVATE_KEY variable in the Transaction class of the **blockchain** folder, **src->main->java->edu.cmu.producerserver->service Transaction** class, and **src->main->java->edu.cmu.consumerserver->service Transaction** class.
+8. Run the **Blockchain** class in the **blockchain** folder.
+9. There will be an address printed on the console. This is the address where the Contract is deployed. This contract holds a map of the ID and the public keys for the producer and consumer that we have defined for the purpose of demonstration of this prototype.
+10. Copy the address and paste it to the **deployedAddress** variable in **src->main->java->edu.cmu.producerserver->service Transaction** and **src->main->java->edu.cmu.consumerserver->service Transaction** class.
+11. Run the Producer server and the Consumer server 
+12. Go to the command line and make a note of the producer server's IP address
+13. In the android project, go to **app->src->main->java->com->example->producerapp->ServerDetails**. Set urlString to "http://<producer server's IP address>:8082". Run the app again.
+14. Run the different stages of the application.
 
 
 
