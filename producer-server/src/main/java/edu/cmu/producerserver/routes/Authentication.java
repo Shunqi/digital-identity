@@ -11,6 +11,7 @@ import edu.cmu.producerserver.service.RedisService;
 import edu.cmu.producerserver.service.Transaction;
 import edu.cmu.producerserver.utils.Hashing;
 import edu.cmu.producerserver.utils.Logger;
+import edu.cmu.producerserver.utils.MessagingCredentials;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.parser.JSONParser;
@@ -39,13 +40,6 @@ public class Authentication {
     private static final String producerDID = "T3CS82NLOD9KIW8X";
     private static final String consumerDID = "2YGJ67123ABC987H";
 
-    private static final long serialVersionUID = -8022560668279505764L;
-
-    // Method to send Notifications from server to client end.
-    public final static String AUTH_KEY_FCM = "AAAA1yG1bXs:APA91bGTxsybnU8wiWzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QPTUrU9OM8EG8hqD33R7qCvJ";
-    public final static String API_URL_FCM = "https://fcm.googleapis.com/v1/projects/DIDPushNotifications/messages:send";
-    public final static String DEVICE_ID = "dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr";
-
     // RSA private key for Producer
     private static final String pn = "23125112666426093876263740909764910339347312551313945559240958270498185928023218019" +
             "0106921111613716541064347138357563940947734110924610394534466816125228346183846412686151923456654254591206" +
@@ -58,6 +52,7 @@ public class Authentication {
     SymmetricKey symmetricKey = new SymmetricKey();
     Hashing hash = new Hashing();
     Transaction transaction = new Transaction();
+    MessagingCredentials credentials = new MessagingCredentials();
 
     @Autowired
     private Logger logger;
@@ -108,8 +103,7 @@ public class Authentication {
 
         // Make call to the app
         try {
-            CcsClient ccsClient = CcsClient.prepareClient("923983506811", "AAAA1yG1bXs:APA91bGTxsyb" +
-                    "nU8wiWzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QPTUrU9OM8EG8hqD33R7qCvJ", true);
+            CcsClient ccsClient = CcsClient.prepareClient(credentials.projectID, credentials.apiKey, true);
 
             try {
                 ccsClient.connect();
@@ -121,8 +115,7 @@ public class Authentication {
             String messageId = Util.getUniqueMessageId();
             Map<String, String> dataPayload = new HashMap<String, String>();
             dataPayload.put(Util.PAYLOAD_ATTRIBUTE_MESSAGE, "Authentication");
-            CcsOutMessage message = new CcsOutMessage("dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzL" +
-                    "x-By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr", messageId, dataPayload);
+            CcsOutMessage message = new CcsOutMessage(credentials.senderRegistrationID, messageId, dataPayload);
             String jsonRequest = MessageHelper.createJsonOutMessage(message);
             ccsClient.send(jsonRequest);
 

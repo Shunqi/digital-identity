@@ -9,6 +9,7 @@ import edu.cmu.producerserver.pushnotifications.util.Util;
 import edu.cmu.producerserver.repository.LogRepository;
 import edu.cmu.producerserver.repository.PermissionRepository;
 import edu.cmu.producerserver.utils.Logger;
+import edu.cmu.producerserver.utils.MessagingCredentials;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,6 +35,7 @@ public class Permissions {
     @Autowired
     private PermissionRepository permissionObject;
 
+    MessagingCredentials credentials = new MessagingCredentials();
     @RequestMapping(
             value = "/permissions",
             method = RequestMethod.POST,
@@ -48,9 +50,7 @@ public class Permissions {
         System.out.println(dataJSON.toJSONString());
         // Send permission document to
         try {
-            CcsClient ccsClient = CcsClient.prepareClient("923983506811", "AAAA1yG1bXs:APA91bGTxsybnU8wi" +
-                    "WzxzXuNgRpeYNjGred7PJIZRFaQJcqgzrFfQGA0jESW7c1Wo298KR3gor5lzMkam6uEJzb6QCHzw-GDWCIGcscu3XvNkTO5agE2QP" +
-                    "TUrU9OM8EG8hqD33R7qCvJ", true);
+            CcsClient ccsClient = CcsClient.prepareClient(credentials.projectID, credentials.apiKey, true);
 
             try {
                 ccsClient.connect();
@@ -64,8 +64,7 @@ public class Permissions {
             dataPayload.put(Util.PAYLOAD_ATTRIBUTE_MESSAGE, "Permissions");
             dataPayload.put("permissions", permissions);
 
-            CcsOutMessage message = new CcsOutMessage("dHdgar30H_s:APA91bEjZA7OUNj98zinwq3Dh8gWualDjacfbEte4NaS8y59inXzLx-" +
-                    "By30CagZIoym2NZ4kv9S2yvycmpMMHJUk0hkP3QsKiZ2eU8_3O4fO2zF_szduRj11jPOEwHpLpheHOYg9scOr", messageId, dataPayload);
+            CcsOutMessage message = new CcsOutMessage(credentials.senderRegistrationID, messageId, dataPayload);
             String jsonRequest = MessageHelper.createJsonOutMessage(message);
             ccsClient.send(jsonRequest);
 
